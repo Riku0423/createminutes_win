@@ -132,7 +132,7 @@ def create_extraction_prompt(text):
     - 議題の番号（①、②など）は必ず付けてください。
     - 各行は必ず「議題○:」または「議題○の要約:」で始まるようにしてください。
     - 議題や要約の前に「*」や「**」などの記号を付けないでください。
-    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出して��さい。
+    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出して��い。
     - インタビューのような文章であっても、適切に議題を抽出してください。
 
     文章:
@@ -161,7 +161,7 @@ def split_audio_file(audio_file_path, num_parts):
 
     parts = []  # 分割した音声ファイルのリストを作ります
     for i in range(num_parts):
-        # 各部分の開始時間を計算します
+        # ���部分の開始時間を計算します
         start_time = max(0, i * part_duration - (overlap_duration if i > 0 else 0))
         # 新しい音声ファイルの名前を決めます
         part_file = f"{audio_file_path}_part{i+1}.mp3"  # 拡張子をmp3のままにします
@@ -180,7 +180,7 @@ def split_audio_file(audio_file_path, num_parts):
             ]
         elif audio_file_path.endswith('.m4a'):
             # M4Aファイルの場合の分割方法
-            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡��m4aのままに��
+            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡m4a��まま
             command = [
                 str(get_ffmpeg_path()),
                 '-y',
@@ -210,7 +210,7 @@ def split_audio_file(audio_file_path, num_parts):
             logging.error(f"FFmpegエラー: {result.stderr}")
         parts.append(part_file)  # 分割したファイルをリストに追加します
 
-    return parts  # ���割したファイルのリストを返します
+    return parts  # 割したファイルのリストを返します
 
 def get_audio_duration(audio_file_path):
     """音声ファイルの長さを取得する関数"""
@@ -259,7 +259,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
         logging.error("プロンプトが取得できませんでした。")
         return None
 
-    # 指定さ���た回数（デフォルトは3回）まで文字起こしを試みます
+    # 指定さた回数（デフォルトは3回）まで文字起こしを試みます
     for attempt in range(retries):
         try:
             # 音声ファイルを開いてデータを読み込みます
@@ -459,7 +459,7 @@ def process_audio_file(audio_file_path, processed_files):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_index = {executor.submit(transcribe_audio_with_key, part, api_keys[i]): i for i, part in enumerate(audio_parts)}
             failed_parts = []
-            successful_api_keys = []  # 成功したAPIキーを記録���るリスト
+            successful_api_keys = []  # 成功したAPIキーを記録るリスト
             for future in concurrent.futures.as_completed(future_to_index):
                 index = future_to_index[future]
                 part = audio_parts[index]
@@ -483,7 +483,7 @@ def process_audio_file(audio_file_path, processed_files):
                     transcribed_texts[index] = result
                     logging.info(f"{part}のリトライが成功しました。")
                     if api_keys[0] not in successful_api_keys:
-                        successful_api_keys.append(api_keys[0])  # リトライで成功し���APIキーを記録
+                        successful_api_keys.append(api_keys[0])  # リトライで成功しAPIキーを記録
                 else:
                     logging.error(f"{part}のリトライが失敗しました。")
 
@@ -513,7 +513,7 @@ def process_audio_file(audio_file_path, processed_files):
         # 70秒のバッファを持たせる
         time.sleep(70)
 
-        # 成功したAPIキーを使って情報抽出を試みる
+        # 成功したAPIキー���使って情報抽出を試みる
         for api_key in successful_api_keys:
             try:
                 extracted_info = extract_information(cleaned_combined_text, api_key)
@@ -751,9 +751,10 @@ def show_settings():
     save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
     save_api_key_button.pack(pady=5)
 
-    # 戻るボタン
-    back_button = tk.Button(main_frame, text="戻る", command=show_main_menu, width=8, height=1)
-    back_button.grid(row=1, column=1, sticky="se", pady=10)
+    # 戻るボタンを右上に配置
+    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
+    back_button.place(x=800, y=20)
+    back_button.lift()  # ボタンを最前面に配置
 
     # グリッドの設定
     main_frame.grid_columnconfigure(0, weight=1)
@@ -765,7 +766,7 @@ def main():
     try:
         logging.info("プロンプトをロード中...")
         transcription_prompt = load_prompt_from_settings()
-        logging.info(f"��得したプロンプト: {transcription_prompt}")
+        logging.info(f"得したプロンプト: {transcription_prompt}")
         logging.info("プロンプトのロードが完了しました。")
         root = tk.Tk()
         root.title("爆速議事録")
@@ -843,7 +844,7 @@ def save_prompt_to_settings(prompt_text):
         logging.info("プロンプトがsettings.jsonに保存されました。")
         messagebox.showinfo("保存", "プロンプトが保存されました。")
     except Exception as e:
-        logging.error(f"プロンプトの保存中にエラーが発生しました: {str(e)}")
+        logging.error(f"プロンプトの保存中にエラーが発生しまし��: {str(e)}")
         messagebox.showerror("エラー", "プロンプトの保存中にエラーが発生しました。")
 
 def load_output_directory():
@@ -856,7 +857,7 @@ def load_output_directory():
     return ''  # ファイルが存在しない場合も空文字を返す
 
 def save_output_directory_to_settings(directory):
-    """出力先ディレクトリをsettings.jsonに保存する���数"""
+    """出力先ディレクトリをsettings.jsonに保存する関数"""
     ensure_settings_exist()  # フォルダとファイルの存在を確認
     settings_path = get_settings_path()
     try:
