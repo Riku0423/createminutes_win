@@ -625,65 +625,157 @@ def show_main_menu():
     for widget in root.winfo_children():
         widget.destroy()
  
-    root.title("ファイル処理ツール")
-    root.geometry("900x500")
+    root.title("爆速議事録")
+    root.geometry("900x600")  # ウィンドウサイズを大きくする
     root.resizable(False, False)  # ウィンドウのサイズを固定
  
     # タイトルラベル
-    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Arial Black", 32, "bold"))
+    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Arial", 24, "bold"))
     title_label.pack(pady=20)
  
     # 設定ボタンを右上に配置
-    settings_button = tk.Button(root, text="設定", command=show_settings, width=5, height=1)
-    settings_button.place(x=800, y=20)  # 右上に配置
+    settings_button = tk.Button(root, text="設定", command=show_settings, width=8, height=1)
+    settings_button.place(x=800, y=20)
 
     # 使い方ボタンを設定ボタンの下に配置
-    usage_button = tk.Button(root, text="使い方", command=show_usage, width=5, height=1)
-    usage_button.place(x=800, y=60)  # 設定ボタンの下に配置
+    usage_button = tk.Button(root, text="使い方", command=show_usage, width=8, height=1)
+    usage_button.place(x=800, y=60)
+
+    # メインフレーム
+    main_frame = tk.Frame(root)
+    main_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
     # 音声ファイル処理フレーム
-    audio_frame = tk.Frame(root, bd=2, relief="groove", width=350, height=400)
-    audio_frame.pack_propagate(False)  # フレームのサイズを固定
-    audio_frame.pack(side="left", padx=60, pady=20)  # 中央のスペースを縮める
+    audio_frame = tk.LabelFrame(main_frame, text="音声ファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
+    audio_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
  
-    audio_label = tk.Label(audio_frame, text="音声ファイル処理", font=("Arial", 16, "bold"))
-    audio_label.pack(pady=20)
- 
-    audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file)
+    audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file, width=25)
     audio_button.pack(pady=10)
 
-    # 選択したファイルを表示するラベル
     file_label = tk.Label(audio_frame, text="選択したファイル", wraplength=300, justify="center")
     file_label.pack(pady=10)
 
-    # 音声ファイルを処理するボタン
-    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload)
-    process_audio_button.pack(pady=(20, 0))  # 初期位置を下げて固定
+    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload, width=25)
+    process_audio_button.pack(pady=10)
  
-    # 想定処理時間を表示するラベル
-    estimated_time_label = tk.Label(audio_frame, text="", font=("Arial", 12))
-    estimated_time_label.pack(pady=10)
+    estimated_time_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    estimated_time_label.pack(pady=5)
 
-    # 経過時間を表示するラベル
-    uploading_label = tk.Label(audio_frame, text="", font=("Arial", 12))
-    uploading_label.pack(pady=10)
+    uploading_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    uploading_label.pack(pady=5)
 
     # Excelファイル処理フレーム
-    excel_frame = tk.Frame(root, bd=2, relief="groove", width=350, height=400)
-    excel_frame.pack_propagate(False)  # フレームのサイズを固定
-    excel_frame.pack(side="right", padx=60, pady=20)  # 中央のスペースを縮める
+    excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
+    excel_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
  
-    excel_label = tk.Label(excel_frame, text="Excelファイル処理", font=("Arial", 16, "bold"))
-    excel_label.pack(pady=20)
- 
-    excel_button = tk.Button(excel_frame, text="Excelファイルを選択する", command=upload_xlsx_file)
+    excel_button = tk.Button(excel_frame, text="Excelファイルを選択する", command=upload_xlsx_file, width=25)
     excel_button.pack(pady=10)
  
     excel_file_label = tk.Label(excel_frame, text="選択したファイル", wraplength=300, justify="center")
     excel_file_label.pack(pady=10)
  
-    process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload)
-    process_excel_button.pack(pady=(20, 0))
+    process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload, width=25)
+    process_excel_button.pack(pady=10)
+
+    # グリッドの設定
+    main_frame.grid_columnconfigure(0, weight=1)
+    main_frame.grid_columnconfigure(1, weight=1)
+    main_frame.grid_rowconfigure(0, weight=1)
+
+def show_settings():
+    for widget in root.winfo_children():
+        widget.destroy()
+    root.title("設定")
+    
+    main_frame = tk.Frame(root, padx=20, pady=20)
+    main_frame.pack(expand=True, fill="both")
+
+    # 左半分のフレーム
+    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Arial", 12, "bold"), padx=10, pady=10)
+    left_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+    prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50)
+    prompt_textbox.pack(expand=True, fill="both", pady=10)
+
+    # settings.jsonからプロンプトを読み込んで表示
+    prompt_text = load_prompt_from_settings()
+    if prompt_text:
+        prompt_textbox.insert('1.0', prompt_text)
+
+    scrollbar = tk.Scrollbar(left_frame, command=prompt_textbox.yview)
+    scrollbar.pack(side="right", fill="y")
+    prompt_textbox.config(yscrollcommand=scrollbar.set)
+
+    save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
+    save_prompt_button.pack(pady=10)
+
+    # 右半分のフレーム
+    right_frame = tk.Frame(main_frame)
+    right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+
+    # 出力先ディレクトリを指定する
+    directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Arial", 12, "bold"), padx=10, pady=10)
+    directory_frame.pack(fill="x", pady=10)
+
+    current_dir = load_output_directory()
+    current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300)
+    current_dir_label.pack(pady=5)
+
+    def select_directory():
+        directory = filedialog.askdirectory()
+        if directory:
+            current_dir_label.config(text=f"選択されたディレクトリ:\n{directory}")
+            save_output_directory_to_settings(directory.strip())
+
+    directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
+    directory_button.pack(pady=5)
+
+    # Gemini APIキーを設定する
+    api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Arial", 12, "bold"), padx=10, pady=10)
+    api_key_frame.pack(fill="x", pady=10)
+
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=10, width=40)
+    api_key_textbox.pack(expand=True, fill="both", pady=5)
+
+    api_keys_text = get_api_keys_text()
+    if api_keys_text:
+        api_key_textbox.insert('1.0', api_keys_text)
+
+    api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
+    api_key_scrollbar.pack(side="right", fill="y")
+    api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
+
+    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button.pack(pady=5)
+
+    # 戻るボタン
+    back_button = tk.Button(main_frame, text="戻る", command=show_main_menu, width=8, height=1)
+    back_button.grid(row=1, column=1, sticky="se", pady=10)
+
+    # グリッドの設定
+    main_frame.grid_columnconfigure(0, weight=1)
+    main_frame.grid_columnconfigure(1, weight=1)
+    main_frame.grid_rowconfigure(0, weight=1)
+
+def main():
+    global root, transcription_prompt
+    try:
+        logging.info("プロンプトをロード中...")
+        transcription_prompt = load_prompt_from_settings()
+        logging.info(f"取得したプロンプト: {transcription_prompt}")
+        logging.info("プロンプトのロードが完了しました。")
+        root = tk.Tk()
+        root.title("爆速議事録")
+        root.geometry("900x600")  # ウィンドウサイズを調整
+        root.resizable(False, False)  # ウィンドウサイズを固定
+
+        show_main_menu()
+
+        root.mainloop()
+    except Exception as e:
+        logging.exception("アプリケーションの実行中にエラーが発生しました。")
+        messagebox.showerror("エラー", f"アプリケーションの実行中にエラーが発生しました:\n{str(e)}")
+        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")
 
 
 def show_usage():
@@ -774,185 +866,6 @@ def save_output_directory_to_settings(directory):
     except Exception as e:
         logging.error(f"出先ディレクトリの保存中にエラーが発生しました: {str(e)}")
 
-def show_settings():
-    for widget in root.winfo_children():
-        widget.destroy()
-    root.title("設定")
-    
-    # 左半分のフレーム
-    left_frame = tk.Frame(root, width=450, height=500)
-    left_frame.pack_propagate(False)
-    left_frame.pack(side="left", padx=30, pady=60)  # 中央に寄せるためにpadxを調整
-
-    # 文字起こしプロンプトを変更する
-    prompt_label = tk.Label(left_frame, text="文字起こしプロンプトを変更する", font=("Arial", 16, "bold"))
-    prompt_label.grid(row=0, column=0, pady=10)
-
-    # テキストボックスとスクロールバー
-    prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50)
-    prompt_textbox.grid(row=1, column=0, sticky="nsew")
-
-    # settings.jsonからプロンプトを読み込んで表示
-    prompt_text = load_prompt_from_settings()
-    if prompt_text:
-        prompt_textbox.insert('1.0', prompt_text)
-
-    scrollbar = tk.Scrollbar(left_frame, command=prompt_textbox.yview)
-    scrollbar.grid(row=1, column=1, sticky="ns")
-    prompt_textbox.config(yscrollcommand=scrollbar.set)
-    # コピーアンドペーストを有効にする
-    def enable_copy_paste(event):
-        prompt_textbox.event_generate("<<Copy>>")
-    prompt_textbox.bind("<Control-c>", enable_copy_paste)
-    prompt_textbox.bind("<Control-v>", lambda e: prompt_textbox.event_generate("<<Paste>>"))
-    prompt_textbox.bind("<Control-a>", lambda e: prompt_textbox.tag_add("sel", "1.0", "end-1c"))
- 
-    # 保存ボタンを左半分に追加
-    save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
-    save_prompt_button.grid(row=2, column=0, pady=10)
-
-    # 右半分のフレーム
-    right_frame = tk.Frame(root, width=450, height=500)
-    right_frame.pack_propagate(False)
-    right_frame.pack(side="right", padx=30, pady=60)  # 中央に寄せるためにpadxを調整
- 
-    # 出力先ディレクトリを指定する
-    directory_label = tk.Label(right_frame, text="出力先ディレクトリを指定する", font=("Arial", 16, "bold"))
-    directory_label.grid(row=0, column=0, pady=10)
-
-    # 現在指定されているディレクトリ
-    current_dir = load_output_directory()
-    current_dir_label = tk.Label(right_frame, text=f"指定されているディレクトリ\n:{current_dir}")
-    current_dir_label.grid(row=1, column=0)
-
-    # ディレクトリを指定するボタン
-    def select_directory():
-        directory = filedialog.askdirectory()
-        if directory:
-            # 選択されたディレクトリを表示
-            current_dir_label.config(text=f"選択されたディレクトリ: {directory}")
-            # ディレクトリパスをトリミングして保存
-            save_output_directory_to_settings(directory.strip())
-
-    directory_button = tk.Button(right_frame, text="ディレクトリを指定する", command=select_directory)
-    directory_button.grid(row=3, column=0, pady=10)
-
-    # 保存ボタン
-    save_button = tk.Button(right_frame, text="保存", command=lambda: messagebox.showinfo("保存", "設定が保存されました。"))
-    save_button.grid(row=4, column=0, pady=7)
-
-    # Gemini APIキーを設定する
-    api_key_label = tk.Label(right_frame, text="Gemini APIキーを設定する", font=("Arial", 16, "bold"))
-    api_key_label.grid(row=5, column=0, pady=7)
-
-    # テキストボックスとスクロールバー
-    api_key_textbox = tk.Text(right_frame, wrap="word", height=10, width=50)
-    api_key_textbox.grid(row=6, column=0, sticky="nsew")
-
-    # settings.jsonからAPIキーを読み込んで表示
-    api_keys_text = get_api_keys_text()
-    if api_keys_text:
-        api_key_textbox.insert('1.0', api_keys_text)
-
-    api_key_scrollbar = tk.Scrollbar(right_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.grid(row=6, column=1, sticky="ns")
-    api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
-
-    # Gemini APIキーの保存ボタン
-    save_api_key_button = tk.Button(right_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.grid(row=7, column=0, pady=5)
-
-# 戻るボタン
-    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
-    back_button.place(x=800, y=20)
-
-def upload_audio_file():
-    global selected_file
-    selected_file = filedialog.askopenfilename(filetypes=[("Audio Files", "*.wav *.mp3 *.m4a")])
-    if selected_file:
-        file_label.config(text=f"選択したファイル\n{os.path.basename(selected_file)}")
-        
-        # ファイルサイズを取得
-        file_size_mb = os.path.getsize(selected_file) / (1024 * 1024)  # MBに変換
-        
-        # 想定処理時間を計算
-        if file_size_mb <= 10:
-            estimated_time = "1〜2分"
-        elif file_size_mb <= 20:
-            estimated_time = "2〜3分"
-        else:
-            estimated_time = "3〜5分"
-        
-        # 想定処理時間を表示
-        estimated_time_label.config(text=f"想定処理時間：約{estimated_time}")
-
-def complete_audio_upload():
-    if selected_file:
-        start_time = time.time()  # 処理開始時刻を記録
-        root.update_idletasks()
-        processed_files = load_processed_files()
-        threading.Thread(target=process_audio_file_async, args=(selected_file, processed_files, start_time)).start()
-    else:
-        messagebox.showwarning("警告", "ファイルが選択されていません。")
-
-def upload_xlsx_file():
-    global selected_file
-    selected_file = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
-    if selected_file:
-        excel_file_label.config(text=f"選択したファイル\n{os.path.basename(selected_file)}")
-
-def complete_xlsx_upload():
-    if selected_file:
-        root.update_idletasks()
-        threading.Thread(target=process_xlsx_file_async, args=(selected_file,)).start()
-    else:
-        messagebox.showwarning("警告", "ファイルが選択されていません。")
-
-def process_audio_file_async(audio_file, processed_files, start_time):
-    def update_elapsed_time():
-        while not processing_done:
-            elapsed_time = int(time.time() - start_time)
-            minutes, seconds = divmod(elapsed_time, 60)
-            if minutes > 0:
-                uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
-            else:
-                uploading_label.config(text=f"経過時間: {seconds}秒")
-            time.sleep(1)
-
-    processing_done = False
-    threading.Thread(target=update_elapsed_time).start()
-
-    # プロンプトが空でないか確認
-    if not transcription_prompt:  # ここでグローバル変数を参照
-        logging.error("プロンプトが空です。音声ファイルの処理を中止します。")
-        messagebox.showerror("エラー", "プロンプトが空です。処理を中止します。")
-        return  # 処理を中止
-
-    success = process_audio_file(audio_file, processed_files)
-    processing_done = True
-    total_elapsed_time = int(time.time() - start_time)
-    minutes, seconds = divmod(total_elapsed_time, 60)
-    if minutes > 0:
-        uploading_label.config(text=f"処理にかかった時間: {minutes}分{seconds}秒で処理が完了しました")
-    else:
-        uploading_label.config(text=f"処理にかかった時間: {seconds}秒で処理が完了しました")
-
-    if success:
-        root.after(0, lambda: (messagebox.showinfo("完了", "ファイルのアップロードが完了しました。"), show_main_menu()))
-    else:
-        messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
-
-def process_xlsx_file_async(xlsx_file):
-    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')  # dist直下から取得
-    output_directory = load_output_directory()
-    output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(xlsx_file))[0]}_議事録.docx")
-    
-    success = create_minutes(xlsx_file, template_path, output_path)
-    if success:
-        root.after(0, lambda: (messagebox.showinfo("完了", "議事録の作成が完了しました。"), show_main_menu()))
-    else:
-        messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
-
 def load_api_keys():
     """settings.jsonからAPIキーを読み込む関数"""
     settings_path = get_settings_path()  # 修正: get_current_dir() から get_settings_path() に変更
@@ -984,25 +897,6 @@ def save_api_keys_to_settings(api_keys_text):
     except Exception as e:
         logging.error(f"APIキーの保存中にエラーが発生しました: {str(e)}")
         messagebox.showerror("エラー", "APIキーの保存中にエラーが発生しました。")
-
-def main():
-    global root, transcription_prompt  # グローバル変数を宣言
-    try:
-        logging.info("プロンプトをロード中...")  # 追加: ロード開始ログ
-        transcription_prompt = load_prompt_from_settings()  # プロンプトをロード
-        logging.info(f"取得したプロンプト: {transcription_prompt}")  # プロンプトの内容をログに出力
-        logging.info("プロンプトのロードが完了しました。")  # 追加: ロード完了ログ
-        root = tk.Tk()
-        root.title("ファイル処理ツール")
-        root.geometry("1000x700")  # より大きなサイズに設定
-
-        show_main_menu()
-
-        root.mainloop()
-    except Exception as e:
-        logging.exception("アプリケーションの実行中にエラーが発生しました。")
-        messagebox.showerror("エラー", f"アプリケーションの実行中にエラーが発生しました:\n{str(e)}")
-        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")  # エラーログを追加
 
 def get_settings_path():
     # ユーザーディレクトリのアプリケーションデータフォルダに保存
