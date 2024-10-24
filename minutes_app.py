@@ -30,7 +30,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_file_path),  # ログファイルのパスを変更
+        logging.FileHandler(log_file_path, encoding='utf-8'),  # エンコーディングを指定
         logging.StreamHandler()
     ]
 )
@@ -39,7 +39,7 @@ def get_current_dir():
     # この関数は、現在のスクリプトがどこにあるかを教えてくれます。
     if getattr(sys, 'frozen', False):
         # もしプログラムがPyInstallerでパッケージ化されているなら
-        return Path(sys._MEIPASS)  # 特別なフォルダを使います
+        return Path(sys.executable).resolve().parent  # 修正
     else:
         # そうでないなら、開発中のフォルダを使います
         return Path(__file__).resolve().parent
@@ -52,7 +52,7 @@ print(f"File exists: {os.path.exists(settings_path)}")
 current_dir = Path(__file__).resolve().parent
 
 # 環境変数の読み込み
-load_dotenv(current_dir / '環境変数.env')
+load_dotenv(current_dir / 'env_variables.env')  # ファイル名を英語に変更
 
 # プロジェクトディレクトリの設定
 project_dir = os.path.dirname(os.path.abspath(__file__))
@@ -67,14 +67,14 @@ def load_processed_files():
     # この関数は、すでに処理したファイルのリストを読み込みます。
     if os.path.exists(PROCESSED_FILES_LOG):
         # もしログファイルが存在するなら
-        with open(PROCESSED_FILES_LOG, 'r') as f:
+        with open(PROCESSED_FILES_LOG, 'r', encoding='utf-8') as f:
             return json.load(f)  # ファイルを開いて内容を読み込みます
     return {}  # ファイルがなけば空のリストを返します
 
 def save_processed_files(processed_files):
     # この関数は、処理したファイルのリストを保存します。
-    with open(PROCESSED_FILES_LOG, 'w') as f:
-        json.dump(processed_files, f, indent=2)  # ファイルに書き込みます
+    with open(PROCESSED_FILES_LOG, 'w', encoding='utf-8') as f:
+        json.dump(processed_files, f, indent=2, ensure_ascii=False)  # ファイルに書き込みます
 
 def get_unprocessed_audio_files():
     # この関数は、まだ処理していない音声ファイルを探します。
@@ -231,7 +231,7 @@ transcription_prompt = ""
 
 def load_prompt_from_settings():
     """settings.jsonからプロンプトを読み込む関数"""
-    settings_path = os.path.join(get_current_dir(), 'settings.json')
+    settings_path = get_settings_path()
     logging.info(f"Settings path: {settings_path}")  # 追加: パスをログに出力
     if os.path.exists(settings_path):
         logging.info("settings.jsonが見つかりました。")  # 追加: ファイル存在確認
@@ -239,12 +239,12 @@ def load_prompt_from_settings():
             try:
                 settings = json.load(f)
                 logging.info("settings.jsonを正常に読み込みました。")  # 追加: 読み込み成功
-                return settings.get('transcription_prompt', '')
+                return settings.get('transcription_prompt', '')  # デフォルト値を空文字に変更
             except json.JSONDecodeError as e:
                 logging.error(f"JSONデコードエラー: {str(e)}")  # 追加: JSONデコードエラー
     else:
         logging.error("settings.jsonが見つかりません。")  # 追加: ファイルが見つからない場合
-    return ''
+    return ''  # ファイルが存在しない場合も空文字を返す
 
 def transcribe_audio_with_key(audio_file, api_key, retries=3):
     """指定されたAPIキーを使用て音声ファイルを文字起こしする関数"""
@@ -430,7 +430,7 @@ def create_excel(extracted_info, output_file):
 
 def load_output_directory():
     """settings.jsonから出力先ディレクトリを読み込む関数"""
-    settings_path = os.path.join(get_current_dir(), 'settings.json')
+    settings_path = get_settings_path()
     if os.path.exists(settings_path):
         with open(settings_path, 'r', encoding='utf-8') as f:
             settings = json.load(f)
@@ -559,7 +559,7 @@ def convert_excel_date(value):
 
 def create_minutes_from_template(data, template_path):
     # 修正後
-    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')
+    template_path = os.path.join(get_current_dir(), 'template.docx')  # ファイル名を英語に変更
 
     doc = Document(template_path)
     
@@ -603,7 +603,7 @@ def create_minutes(xlsx_path, template_path, output_path):
         data = extract_info_from_xlsx(xlsx_path)
         doc = create_minutes_from_template(data, template_path)
         doc.save(output_path)
-        print(f"事録が作成されました: {output_path}")
+        print(f"議事録が作成されました: {output_path}")
         return True
     except Exception as e:
         logging.error(f"議事録の作成中にエラーが発生しました: {str(e)}")
@@ -630,7 +630,7 @@ def show_main_menu():
     root.resizable(False, False)  # ウィンドウのサイズを固定
 
     # タイトルラベル
-    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Arial", 24, "bold"))
+    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Yu Gothic", 24, "bold"))
     title_label.pack(pady=20)
 
     # 設定ボタンを右上に配置
@@ -646,7 +646,7 @@ def show_main_menu():
     main_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
     # 音声ファイル処理フレーム
-    audio_frame = tk.LabelFrame(main_frame, text="音声ファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
+    audio_frame = tk.LabelFrame(main_frame, text="音声ファイル処理", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
     audio_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
     audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file, width=25)
@@ -658,17 +658,17 @@ def show_main_menu():
     process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload, width=25)
     process_audio_button.pack(pady=10)
 
-    estimated_time_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    estimated_time_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
     estimated_time_label.pack(pady=5)
 
-    uploading_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    uploading_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
     uploading_label.pack(pady=5)
 
-    elapsed_time_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    elapsed_time_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
     elapsed_time_label.pack(pady=5)
 
     # Excelファイル処理フレーム
-    excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
+    excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
     excel_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
     excel_button = tk.Button(excel_frame, text="Excelファイルを選択する", command=upload_xlsx_file, width=25)
@@ -694,10 +694,10 @@ def show_settings():
     main_frame.pack(expand=True, fill="both")
 
     # 左半分のフレーム
-    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Arial", 12, "bold"), padx=10, pady=10)
+    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
     left_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-    prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50)
+    prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
     prompt_textbox.pack(expand=True, fill="both", pady=10)
 
     # settings.jsonからプロンプトを読み込んで表示
@@ -717,11 +717,11 @@ def show_settings():
     right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
 
     # 出力先ディレクトリを指定する
-    directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Arial", 12, "bold"), padx=10, pady=10)
+    directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
     directory_frame.pack(fill="x", pady=10)
 
     current_dir = load_output_directory()
-    current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300)
+    current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
     current_dir_label.pack(pady=5)
 
     def select_directory():
@@ -734,10 +734,10 @@ def show_settings():
     directory_button.pack(pady=5)
 
     # Gemini APIキーを設定する
-    api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Arial", 12, "bold"), padx=10, pady=10)
+    api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
     api_key_frame.pack(fill="x", pady=10)
 
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=10, width=40)
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=10, width=40, font=("Yu Gothic", 10))
     api_key_textbox.pack(expand=True, fill="both", pady=5)
 
     # 既存のAPIキーを読み込んで表示
@@ -785,55 +785,37 @@ def main():
         messagebox.showerror("エラー", f"アプリケーションの実行中にエラーが発生しました:\n{str(e)}")
         logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")
 
-
 def show_usage():
     for widget in root.winfo_children():
         widget.destroy()
 
     root.title("使い方")
 
-    usage_label = tk.Label(root, text="使い方", font=("Arial", 16, "bold"))
-    usage_label.pack(pady=(120, 0))  # 上に60ピクセルの余白を追加
+    usage_label = tk.Label(root, text="使い方", font=("Yu Gothic", 16, "bold"))
+    usage_label.pack(pady=(60, 0))  # 上に60ピクセルの余白を追加
 
     usage_text = "使い方は以下のWebページをご覧ください"
-    usage_info = tk.Label(root, text=usage_text, justify="left")
+    usage_info = tk.Label(root, text=usage_text, justify="left", font=("Yu Gothic", 12))
     usage_info.pack(pady=10)
 
     # ホームページのリンク
-    link = tk.Label(root, text="URLはこちら", fg="blue", cursor="hand2")
+    link = tk.Label(root, text="URLはこちら", fg="blue", cursor="hand2", font=("Yu Gothic", 12, "underline"))
     link.pack(pady=10)
     link.bind("<Button-1>", lambda e: webbrowser.open("https://abiding-delivery-6d9.notion.site/1264d14a044c804f9dc7e41ce20a920f"))  # ここに実際のURLを入れてください
 
     usage_text = "爆速議事録をご利用いただきありがとうございます！"
-    usage_info = tk.Label(root, text=usage_text, justify="left")
+    usage_info = tk.Label(root, text=usage_text, justify="left", font=("Yu Gothic", 12))
     usage_info.pack(pady=10)
 
     # 問い合わせのリンク
-    link = tk.Label(root, text="お問い合わせ、バグの報告はこちらのアカウントまで", fg="blue", cursor="hand2")
-    link.pack(pady=10)
-    link.bind("<Button-1>", lambda e: webbrowser.open("https://x.com/petit_hiroto"))  # ここに実際のURLを入れてください
+    contact_link = tk.Label(root, text="お問い合わせ、バグの報告はこちらのアカウントまで", fg="blue", cursor="hand2", font=("Yu Gothic", 12, "underline"))
+    contact_link.pack(pady=10)
+    contact_link.bind("<Button-1>", lambda e: webbrowser.open("https://x.com/petit_hiroto"))  # ここに実際のURLを入れてください
 
     # 戻るボタンを右上に配置
     back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
     back_button.place(x=800, y=20)
     back_button.lift()  # ボタンを最前面に配置
-
-def load_prompt_from_settings():
-    """settings.jsonからプロンプトを読み込む関数"""
-    settings_path = get_settings_path()
-    logging.info(f"Settings path: {settings_path}")  # 追加: パスをログに出力
-    if os.path.exists(settings_path):
-        logging.info("settings.jsonが見つかりました。")  # 追加: ファイル存在確認
-        with open(settings_path, 'r', encoding='utf-8') as f:
-            try:
-                settings = json.load(f)
-                logging.info("settings.jsonを正常に読み込みました。")  # 追加: 読み込み成功
-                return settings.get('transcription_prompt', '')  # デフォルト値を空文字に変更
-            except json.JSONDecodeError as e:
-                logging.error(f"JSONデコードエラー: {str(e)}")  # 追加: JSONデコードエラー
-    else:
-        logging.error("settings.jsonが見つかりません。")  # 追加: ファイルが見つからない場合
-    return ''  # ファイルが存在しない場合も空文字を返す
 
 def save_prompt_to_settings(prompt_text):
     """プロンプトをsettings.jsonに保存する関数"""
@@ -872,7 +854,7 @@ def save_output_directory_to_settings(directory):
             json.dump(settings, f, ensure_ascii=False, indent=2)
         logging.info("出力先ディレクトリがsettings.jsonに保存されました。")
     except Exception as e:
-        logging.error(f"出先ディレクトリの保存中にエラーが発生しました: {str(e)}")
+        logging.error(f"出力先ディレクトリの保存中にエラーが発生しました: {str(e)}")
 
 def load_api_keys():
     """settings.jsonからAPIキーを読み込む関数"""
@@ -987,7 +969,7 @@ def upload_xlsx_file():
 def complete_xlsx_upload():
     if selected_file:
         output_directory = load_output_directory()
-        template_path = os.path.join(get_current_dir(), 'テンプレート.docx')
+        template_path = os.path.join(get_current_dir(), 'template.docx')  # ファイル名を英語に変更
         output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(selected_file))[0]}_議事録.docx")
         
         if create_minutes(selected_file, template_path, output_path):
@@ -999,4 +981,3 @@ def complete_xlsx_upload():
 
 if __name__ == "__main__":
     main()
-
