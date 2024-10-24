@@ -159,7 +159,7 @@ def split_audio_file(audio_file_path, num_parts):
     part_duration = duration / num_parts  # 各部分の長さを計算します
     overlap_duration = part_duration * 0.1  # 10%の重なりを持たせます
 
-    parts = []  # 分割した音声ファイルのリストを作ります
+    parts = []  # 分割した声ファイルのリストを作ります
     for i in range(num_parts):
         # 部分の開始時間を計算します
         start_time = max(0, i * part_duration - (overlap_duration if i > 0 else 0))
@@ -179,7 +179,7 @@ def split_audio_file(audio_file_path, num_parts):
                 part_file  # 新しい音声ファイルの名前を指定します
             ]
         elif audio_file_path.endswith('.m4a'):
-            # M4Aファイルの場合の分割方法
+            # M4Aファイルの場合の分方法
             part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡m4aまま
             command = [
                 str(get_ffmpeg_path()),
@@ -234,7 +234,7 @@ def load_prompt_from_settings():
     settings_path = get_settings_path()
     logging.info(f"Settings path: {settings_path}")  # 追加: パスをログに出力
     if os.path.exists(settings_path):
-        logging.info("settings.jsonが見つかりました。")  # 追加: ファイル存在確認
+        logging.info("settings.jsonが見つかりました。")  # 追加: ファイ存在確認
         with open(settings_path, 'r', encoding='utf-8') as f:
             try:
                 settings = json.load(f)
@@ -285,7 +285,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
                 return response.text
             else:
                 # テキストが含まれていない場合はエラーを記録します
-                logging.error(f"文字起こし失敗: {audio_file} - レスポンスにテキストが含まれていません。")
+                logging.error(f"文起こし失敗: {audio_file} - レスポンスにテキストが含まれていません。")
         except google.api_core.exceptions.ResourceExhausted:
             # APIの利用制限に達した場合のエラーを記録します
             logging.error(f"文字起こし失敗: {audio_file} - 429 Resource has been exhausted (e.g. check quota).")
@@ -690,6 +690,10 @@ def show_settings():
         widget.destroy()
     root.title("設定")
     
+    # 戻るボタンを最初に作成
+    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
+    back_button.place(x=800, y=20)
+    
     main_frame = tk.Frame(root, padx=20, pady=20)
     main_frame.pack(expand=True, fill="both")
 
@@ -705,10 +709,12 @@ def show_settings():
     if prompt_text:
         prompt_textbox.insert('1.0', prompt_text)
 
+    # スクロールバーの加
     scrollbar = tk.Scrollbar(left_frame, command=prompt_textbox.yview)
     scrollbar.pack(side="right", fill="y")
     prompt_textbox.config(yscrollcommand=scrollbar.set)
 
+    # プロンプトの保存ボタンをテキストボックスの下に配置
     save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
     save_prompt_button.pack(pady=10)
 
@@ -735,9 +741,10 @@ def show_settings():
 
     # Gemini APIキーを設定する
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
-    api_key_frame.pack(fill="x", pady=10)
+    api_key_frame.pack(fill="x", pady=10, expand=True)  # expandをTrueに設定
 
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=10, width=40, font=("Yu Gothic", 10))
+    # テキストボックスの高さを少し小さくして、ボタンのスペースを確保
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=8, width=40, font=("Yu Gothic", 10))  # heightを10から8に変更
     api_key_textbox.pack(expand=True, fill="both", pady=5)
 
     # 既存のAPIキーを読み込んで表示
@@ -745,20 +752,17 @@ def show_settings():
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
 
-    # スクロールバーの追加
+    # APIキー用スクロールバーの追加
     api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    # APIキーの保存ボタンをテキストボックスの下に配置
-    save_api_key_button = tk.Button(api_key_frame, text="保存", 
-                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    # APIキーの保存ボタンをフレームの下部に配置
+    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
     save_api_key_button.pack(pady=10)
 
-    # 戻るボタンを右上に配置
-    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
-    back_button.place(x=800, y=20)
-    back_button.lift()  # ボタンを最前面に配置
+    # 最後にもう一度戻るボタンを最前面に持ってくる
+    back_button.lift()
 
     # グリッドの設定
     main_frame.grid_columnconfigure(0, weight=1)
