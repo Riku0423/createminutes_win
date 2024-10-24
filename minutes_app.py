@@ -132,7 +132,7 @@ def create_extraction_prompt(text):
     - 議題の番号（①、②など）は必ず付けてください。
     - 各行は必ず「議題○:」または「議題○の要約:」で始まるようにしてください。
     - 議題や要約の前に「*」や「**」などの記号を付けないでください。
-    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出して��い。
+    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出してい。
     - インタビューのような文章であっても、適切に議題を抽出してください。
 
     文章:
@@ -161,7 +161,7 @@ def split_audio_file(audio_file_path, num_parts):
 
     parts = []  # 分割した音声ファイルのリストを作ります
     for i in range(num_parts):
-        # ���部分の開始時間を計算します
+        # 部分の開始時間を計算します
         start_time = max(0, i * part_duration - (overlap_duration if i > 0 else 0))
         # 新しい音声ファイルの名前を決めます
         part_file = f"{audio_file_path}_part{i+1}.mp3"  # 拡張子をmp3のままにします
@@ -180,7 +180,7 @@ def split_audio_file(audio_file_path, num_parts):
             ]
         elif audio_file_path.endswith('.m4a'):
             # M4Aファイルの場合の分割方法
-            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡m4a��まま
+            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡m4aまま
             command = [
                 str(get_ffmpeg_path()),
                 '-y',
@@ -513,7 +513,7 @@ def process_audio_file(audio_file_path, processed_files):
         # 70秒のバッファを持たせる
         time.sleep(70)
 
-        # 成功したAPIキー���使って情報抽出を試みる
+        # 成功したAPIキー使って情報抽出を試みる
         for api_key in successful_api_keys:
             try:
                 extracted_info = extract_information(cleaned_combined_text, api_key)
@@ -603,7 +603,7 @@ def create_minutes(xlsx_path, template_path, output_path):
         data = extract_info_from_xlsx(xlsx_path)
         doc = create_minutes_from_template(data, template_path)
         doc.save(output_path)
-        print(f"議事録が作成されました: {output_path}")
+        print(f"���事録が作成されました: {output_path}")
         return True
     except Exception as e:
         logging.error(f"議事録の作成中にエラーが発生しました: {str(e)}")
@@ -740,16 +740,19 @@ def show_settings():
     api_key_textbox = tk.Text(api_key_frame, wrap="word", height=10, width=40)
     api_key_textbox.pack(expand=True, fill="both", pady=5)
 
+    # 既存のAPIキーを読み込んで表示
     api_keys_text = get_api_keys_text()
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
 
+    # スクロールバーの追加
     api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(pady=5)
+    # APIキーの保存ボタンを追加（明示的にサイズを指定）
+    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')), width=10)
+    save_api_key_button.pack(pady=10)
 
     # 戻るボタンを右上に配置
     back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
@@ -844,7 +847,7 @@ def save_prompt_to_settings(prompt_text):
         logging.info("プロンプトがsettings.jsonに保存されました。")
         messagebox.showinfo("保存", "プロンプトが保存されました。")
     except Exception as e:
-        logging.error(f"プロンプトの保存中にエラーが発生しまし��: {str(e)}")
+        logging.error(f"プロンプトの保存中にエラーが発生しました: {str(e)}")
         messagebox.showerror("エラー", "プロンプトの保存中にエラーが発生しました。")
 
 def load_output_directory():
