@@ -132,7 +132,7 @@ def create_extraction_prompt(text):
     - 議題の番号（①、②など）は必ず付けてください。
     - 各行は必ず「議題○:」または「議題○の要約:」で始まるようにしてください。
     - 議題や要約の前に「*」や「**」などの記号を付けないでください。
-    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出してくさい。
+    - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出して��さい。
     - インタビューのような文章であっても、適切に議題を抽出してください。
 
     文章:
@@ -180,7 +180,7 @@ def split_audio_file(audio_file_path, num_parts):
             ]
         elif audio_file_path.endswith('.m4a'):
             # M4Aファイルの場合の分割方法
-            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡張子をm4aのままにし
+            part_file = f"{audio_file_path}_part{i+1}.m4a"  # 拡��m4aのままに��
             command = [
                 str(get_ffmpeg_path()),
                 '-y',
@@ -210,7 +210,7 @@ def split_audio_file(audio_file_path, num_parts):
             logging.error(f"FFmpegエラー: {result.stderr}")
         parts.append(part_file)  # 分割したファイルをリストに追加します
 
-    return parts  # 分割したファイルのリストを返します
+    return parts  # ���割したファイルのリストを返します
 
 def get_audio_duration(audio_file_path):
     """音声ファイルの長さを取得する関数"""
@@ -259,7 +259,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
         logging.error("プロンプトが取得できませんでした。")
         return None
 
-    # 指定された回数（デフォルトは3回）まで文字起こしを試みます
+    # 指定さ���た回数（デフォルトは3回）まで文字起こしを試みます
     for attempt in range(retries):
         try:
             # 音声ファイルを開いてデータを読み込みます
@@ -459,7 +459,7 @@ def process_audio_file(audio_file_path, processed_files):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_index = {executor.submit(transcribe_audio_with_key, part, api_keys[i]): i for i, part in enumerate(audio_parts)}
             failed_parts = []
-            successful_api_keys = []  # 成功したAPIキーを記録するリスト
+            successful_api_keys = []  # 成功したAPIキーを記録���るリスト
             for future in concurrent.futures.as_completed(future_to_index):
                 index = future_to_index[future]
                 part = audio_parts[index]
@@ -483,7 +483,7 @@ def process_audio_file(audio_file_path, processed_files):
                     transcribed_texts[index] = result
                     logging.info(f"{part}のリトライが成功しました。")
                     if api_keys[0] not in successful_api_keys:
-                        successful_api_keys.append(api_keys[0])  # リトライで成功したAPIキーを記録
+                        successful_api_keys.append(api_keys[0])  # リトライで成功し���APIキーを記録
                 else:
                     logging.error(f"{part}のリトライが失敗しました。")
 
@@ -765,7 +765,7 @@ def main():
     try:
         logging.info("プロンプトをロード中...")
         transcription_prompt = load_prompt_from_settings()
-        logging.info(f"取得したプロンプト: {transcription_prompt}")
+        logging.info(f"��得したプロンプト: {transcription_prompt}")
         logging.info("プロンプトのロードが完了しました。")
         root = tk.Tk()
         root.title("爆速議事録")
@@ -856,7 +856,7 @@ def load_output_directory():
     return ''  # ファイルが存在しない場合も空文字を返す
 
 def save_output_directory_to_settings(directory):
-    """出力先ディレクトリをsettings.jsonに保存する関数"""
+    """出力先ディレクトリをsettings.jsonに保存する���数"""
     ensure_settings_exist()  # フォルダとファイルの存在を確認
     settings_path = get_settings_path()
     try:
@@ -954,6 +954,43 @@ def ensure_settings_exist():
 
 # 確認と作成を実行
 ensure_settings_exist()
+
+def complete_audio_upload():
+    if selected_file:
+        process_audio_file(selected_file, {})
+    else:
+        messagebox.showwarning("警告", "音声ファイルが選択されていません。")
+
+def upload_audio_file():
+    global selected_file
+    file_path = filedialog.askopenfilename(
+        filetypes=[("音声ファイル", "*.mp3;*.m4a;*.wav")]
+    )
+    if file_path:
+        selected_file = file_path
+        file_label.config(text=f"選択したファイル:\n{os.path.basename(file_path)}")
+
+def upload_xlsx_file():
+    global selected_file
+    file_path = filedialog.askopenfilename(
+        filetypes=[("Excelファイル", "*.xlsx")]
+    )
+    if file_path:
+        selected_file = file_path
+        excel_file_label.config(text=f"選択したファイル:\n{os.path.basename(file_path)}")
+
+def complete_xlsx_upload():
+    if selected_file:
+        output_directory = load_output_directory()
+        template_path = os.path.join(get_current_dir(), 'テンプレート.docx')
+        output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(selected_file))[0]}_議事録.docx")
+        
+        if create_minutes(selected_file, template_path, output_path):
+            messagebox.showinfo("完了", "議事録の作成が完了しました。")
+        else:
+            messagebox.showerror("エラー", "議事録の作成中にエラーが発生しました。")
+    else:
+        messagebox.showwarning("警告", "Excelファイルが選択されていません。")
 
 if __name__ == "__main__":
     main()
