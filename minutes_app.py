@@ -624,15 +624,15 @@ def show_main_menu():
     selected_file = None
     for widget in root.winfo_children():
         widget.destroy()
- 
+
     root.title("爆速議事録")
     root.geometry("900x600")  # ウィンドウサイズを大きくする
     root.resizable(False, False)  # ウィンドウのサイズを固定
- 
+
     # タイトルラベル
     title_label = tk.Label(root, text="⚡️爆速議事録", font=("Arial", 24, "bold"))
     title_label.pack(pady=20)
- 
+
     # 設定ボタンを右上に配置
     settings_button = tk.Button(root, text="設定", command=show_settings, width=8, height=1)
     settings_button.place(x=800, y=20)
@@ -648,32 +648,35 @@ def show_main_menu():
     # 音声ファイル処理フレーム
     audio_frame = tk.LabelFrame(main_frame, text="音声ファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
     audio_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
- 
+
     audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file, width=25)
     audio_button.pack(pady=10)
 
-    file_label = tk.Label(audio_frame, text="選択したファイル", wraplength=300, justify="center")
+    file_label = tk.Label(audio_frame, text="選択したファイル: なし", wraplength=300, justify="center")
     file_label.pack(pady=10)
 
     process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload, width=25)
     process_audio_button.pack(pady=10)
- 
+
     estimated_time_label = tk.Label(audio_frame, text="", font=("Arial", 10))
     estimated_time_label.pack(pady=5)
 
     uploading_label = tk.Label(audio_frame, text="", font=("Arial", 10))
     uploading_label.pack(pady=5)
 
+    elapsed_time_label = tk.Label(audio_frame, text="", font=("Arial", 10))
+    elapsed_time_label.pack(pady=5)
+
     # Excelファイル処理フレーム
     excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Arial", 12, "bold"), padx=10, pady=10)
     excel_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
- 
+
     excel_button = tk.Button(excel_frame, text="Excelファイルを選択する", command=upload_xlsx_file, width=25)
     excel_button.pack(pady=10)
- 
-    excel_file_label = tk.Label(excel_frame, text="選択したファイル", wraplength=300, justify="center")
+
+    excel_file_label = tk.Label(excel_frame, text="選択したファイル: なし", wraplength=300, justify="center")
     excel_file_label.pack(pady=10)
- 
+
     process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload, width=25)
     process_excel_button.pack(pady=10)
 
