@@ -69,7 +69,7 @@ def load_processed_files():
         # もしログファイルが存在するなら
         with open(PROCESSED_FILES_LOG, 'r') as f:
             return json.load(f)  # ファイルを開いて内容を読み込みます
-    return {}  # ファイルがなければ空のリストを返します
+    return {}  # ファイルがなけば空のリストを返します
 
 def save_processed_files(processed_files):
     # この関数は、処理したファイルのリストを保存します。
@@ -133,7 +133,7 @@ def create_extraction_prompt(text):
     - 各行は必ず「議題○:」または「議題○の要約:」で始まるようにしてください。
     - 議題や要約の前に「*」や「**」などの記号を付けないでください。
     - 議題というのはあくまで表現の一つであり、会話内容が議事録形式で記されていれば構いません。インタビューの文章等からも適切に議題を抽出してい。
-    - インタビューのような文章であっても、適切に議題を抽出してください。
+    - インタビーのような文章であっても、適切に議題を抽出してください。
 
     文章:
     {text}
@@ -210,7 +210,7 @@ def split_audio_file(audio_file_path, num_parts):
             logging.error(f"FFmpegエラー: {result.stderr}")
         parts.append(part_file)  # 分割したファイルをリストに追加します
 
-    return parts  # 割したファイルのリストを返します
+    return parts  # 割したファイルのリストを返しす
 
 def get_audio_duration(audio_file_path):
     """音声ファイルの長さを取得する関数"""
@@ -253,7 +253,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
     # プロンプトをログに出力（1回だけ）
     if transcription_prompt:
         # もし文字起こしの指示（プロンプト）があれば、それをログに記録します
-        logging.info(f"今回は以下のプロンプトで文字起こしをします:\n{transcription_prompt}")
+        logging.info(f"今回は以下のプロンプトで文字起こしします:\n{transcription_prompt}")
     else:
         # プロンプトがない場合はエラーを記録して、関数を終了します
         logging.error("プロンプトが取得できませんでした。")
@@ -603,7 +603,7 @@ def create_minutes(xlsx_path, template_path, output_path):
         data = extract_info_from_xlsx(xlsx_path)
         doc = create_minutes_from_template(data, template_path)
         doc.save(output_path)
-        print(f"���事録が作成されました: {output_path}")
+        print(f"事録が作成されました: {output_path}")
         return True
     except Exception as e:
         logging.error(f"議事録の作成中にエラーが発生しました: {str(e)}")
@@ -750,8 +750,9 @@ def show_settings():
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    # APIキーの保存ボタンを追加（明示的にサイズを指定）
-    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')), width=10)
+    # APIキーの保存ボタンをテキストボックスの下に配置
+    save_api_key_button = tk.Button(api_key_frame, text="保存", 
+                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
     save_api_key_button.pack(pady=10)
 
     # 戻るボタンを右上に配置
