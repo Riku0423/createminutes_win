@@ -738,7 +738,7 @@ def show_settings():
     
     # 出力先ディレクトリを指定するフレーム
     directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"))
-    directory_frame.pack(fill="x", pady=(0,10))
+    directory_frame.pack(fill="x", expand=False, padx=10, pady=(0,10))
     
     current_dir = load_output_directory()
     current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
@@ -751,22 +751,22 @@ def show_settings():
             save_output_directory_to_settings(directory.strip())
     
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
-    directory_button.pack(pady=5, padx=10, fill="x")
+    directory_button.pack(fill="x", pady=10, padx=5)
     
     # Gemini APIキーを設定するためのラベル付きフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
-    api_key_frame.pack(fill="both", expand=True, padx=10, pady=10)
+    api_key_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
     # APIキーのテキストボックスとスクロールバーを含むフレーム
     api_key_text_frame = tk.Frame(api_key_frame)
-    api_key_text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    api_key_text_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
 
-    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
-    api_key_textbox.pack(side="left", fill="both", expand=True)
+    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=3, width=30, font=("Yu Gothic", 10))
+    api_key_textbox.pack(side="left", fill="both", expand=True, padx=(5,0), pady=5)
 
     # スクロールバー
     api_key_scrollbar = tk.Scrollbar(api_key_text_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.pack(side="right", fill="y")
+    api_key_scrollbar.pack(side="right", fill="y", pady=5)
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
     # 既存のAPIキーを読み込む
@@ -775,9 +775,9 @@ def show_settings():
         api_key_textbox.insert('1.0', api_keys_text)
 
     # APIキーの保存ボタン
-    save_api_key_button = tk.Button(api_key_frame, text="保存", 
-                                    command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
     save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")
+    save_api_key_button.lift()  # 保存ボタンを最前面に持ってくる
 
 def main():
     global root, transcription_prompt
