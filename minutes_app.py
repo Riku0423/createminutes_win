@@ -776,7 +776,7 @@ def show_settings():
 
     # APIキーの保存ボタン
     save_api_key_button = tk.Button(api_key_frame, text="保存", 
-                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+                                    command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
     save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")
 
 def main():
