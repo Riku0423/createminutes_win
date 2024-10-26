@@ -496,7 +496,7 @@ def process_audio_file(audio_file_path, processed_files):
         combined_text = "\n".join(filter(None, transcribed_texts))
         # 余分な空白を取り除く
         cleaned_combined_text = " ".join(combined_text.split())
-        logging.info(f"{audio_file_name}���文字起こしが完了しました。情報を抽出します。")
+        logging.info(f"{audio_file_name}文字起こしが完了しました。情報を抽出します。")
 
         # 文字起こし結果をWordファイルに保存
         try:
@@ -772,11 +772,11 @@ def show_settings():
 
     # ボタンフレーム
     button_frame = tk.Frame(content_frame)
-    button_frame.pack(fill="x", pady=(5,0))
+    button_frame.pack(fill="x", pady=(5,0), expand=True)  # expandを追加
 
     # APIキーの保存ボタン
     save_api_key_button = tk.Button(button_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(pady=5, padx=5, fill="x")
+    save_api_key_button.pack(pady=5, padx=5, fill="x", side="bottom")  # sideを追加
 
 def main():
     global root, transcription_prompt
