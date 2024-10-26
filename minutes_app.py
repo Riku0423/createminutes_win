@@ -746,17 +746,21 @@ def show_settings():
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
     directory_button.pack(fill="x", pady=10, padx=5)
     
-    # Gemini APIキーフレーム - 文字起こしプロンプトと同じ構造に
+    # Gemini APIキーフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
     api_key_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
+    # コンテンツを含む内部フレーム
+    content_frame = tk.Frame(api_key_frame)
+    content_frame.pack(fill="both", expand=True, padx=5, pady=5)
+
     # APIキーのテキストボックスフレーム
-    api_key_text_frame = tk.Frame(api_key_frame)
-    api_key_text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    api_key_text_frame = tk.Frame(content_frame)
+    api_key_text_frame.pack(fill="both", expand=True, padx=0, pady=0)
 
-    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=8, width=30, font=("Yu Gothic", 10))
+    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=6, width=30, font=("Yu Gothic", 10))
     api_key_textbox.pack(side="left", fill="both", expand=True)
-
+ 
     api_key_scrollbar = tk.Scrollbar(api_key_text_frame, command=api_key_textbox.yview)
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
@@ -766,13 +770,13 @@ def show_settings():
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
 
-    # APIキーの保存ボタン - 文字起こしプロンプトと全く同じ構造で
-    save_api_key_button = tk.Button(
-        api_key_frame,  # 親を変更
-        text="保存", 
-        command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c'))
-    )
-    save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")  # 文字起こしプロンプトと同じパラメータ
+    # ボタンフレーム
+    button_frame = tk.Frame(content_frame)
+    button_frame.pack(fill="x", pady=(5,0))
+
+    # APIキーの保存ボタン
+    save_api_key_button = tk.Button(button_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button.pack(pady=5, padx=5, fill="x")
 
 def main():
     global root, transcription_prompt
