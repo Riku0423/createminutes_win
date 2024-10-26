@@ -677,7 +677,7 @@ def show_main_menu():
     excel_file_label = tk.Label(excel_frame, text="選択したファイル: なし", wraplength=300, justify="center")
     excel_file_label.pack(pady=10)
 
-    process_excel_button = tk.Button(excel_frame, text="Excel���ァイルを処理する", command=complete_xlsx_upload, width=25)
+    process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload, width=25)
     process_excel_button.pack(pady=10)
 
     # グリッドの設定
@@ -711,8 +711,12 @@ def show_settings():
     left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"))
     left_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
     
-    prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
-    prompt_textbox.pack(side="left", fill="both", expand=True, padx=(5,0), pady=5)
+    # テキストボックスとスクロールバーを含むフレーム
+    text_frame = tk.Frame(left_frame)
+    text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    
+    prompt_textbox = tk.Text(text_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
+    prompt_textbox.pack(side="left", fill="both", expand=True)
     
     # settings.jsonからプロンプトを読み込んで表示
     prompt_text = load_prompt_from_settings()
@@ -720,8 +724,8 @@ def show_settings():
         prompt_textbox.insert('1.0', prompt_text)
     
     # スクロールバーの追加
-    scrollbar = tk.Scrollbar(left_frame, command=prompt_textbox.yview)
-    scrollbar.pack(side="right", fill="y", pady=5)
+    scrollbar = tk.Scrollbar(text_frame, command=prompt_textbox.yview)
+    scrollbar.pack(side="right", fill="y")
     prompt_textbox.config(yscrollcommand=scrollbar.set)
     
     # プロンプトの保存ボタンをテキストボックスの下に配置
@@ -751,25 +755,29 @@ def show_settings():
     
     # Gemini APIキーを設定するためのラベル付きフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
-    api_key_frame.pack(fill="both", expand=True)
+    api_key_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-    # APIキーを入力するためのテキストボックス
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
-    api_key_textbox.pack(fill="both", expand=True, padx=5, pady=(5,40))
+    # APIキーのテキストボックスとスクロールバーを含むフレーム
+    api_key_text_frame = tk.Frame(api_key_frame)
+    api_key_text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+
+    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
+    api_key_textbox.pack(side="left", fill="both", expand=True)
+
+    # スクロールバー
+    api_key_scrollbar = tk.Scrollbar(api_key_text_frame, command=api_key_textbox.yview)
+    api_key_scrollbar.pack(side="right", fill="y")
+    api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
     # 既存のAPIキーを読み込む
     api_keys_text = get_api_keys_text()
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
 
-    # スクロールバー
-    api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.pack(side="right", fill="y", pady=(5,40))
-    api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
-
-    # 保存ボタン（テキストボックスの下に配置）
-    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(side="bottom", fill="x", padx=5, pady=(5,10))
+    # APIキーの保存ボタン
+    save_api_key_button = tk.Button(api_key_frame, text="保存", 
+                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")
 
 def main():
     global root, transcription_prompt
