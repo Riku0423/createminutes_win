@@ -686,13 +686,21 @@ def show_main_menu():
     main_frame.grid_rowconfigure(0, weight=1)
 
 def show_settings():
+    global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file
+    selected_file = None
     for widget in root.winfo_children():
         widget.destroy()
 
     root.title("設定")
+    root.resizable(False, False)  # ウィンドウのサイズを固定
     
+    # 戻るボタンを右上に配置
+    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=8, height=1)
+    back_button.place(x=800, y=20)
+    back_button.lift()  # ボタンを最前面に配置
+
     # メインフレームをグリッドで配置
-    main_frame = tk.Frame(root, padx=20, pady=20)
+    main_frame = tk.Frame(root, padx=10, pady=10)
     main_frame.grid(row=0, column=0, sticky="nsew")
     
     # グリッドの行と列を設定
@@ -766,11 +774,6 @@ def show_settings():
     # フレーム内のレイアウトを調整
     api_key_frame.grid_rowconfigure(0, weight=1)
     api_key_frame.grid_columnconfigure(0, weight=1)
-    
-    # 戻るボタンを右上に配置
-    back_button = tk.Button(root, text="戻る", command=show_main_menu, width=5, height=1)
-    back_button.place(x=800, y=20)
-    back_button.lift()  # ボタンを最前面に配置
     
     # グリッドの設定
     main_frame.grid_columnconfigure(0, weight=1)
