@@ -692,18 +692,15 @@ def show_settings():
         widget.destroy()
 
     root.title("設定")
-    root.resizable(False, False)  # ウィンドウのサイズを固定
+    root.resizable(False, False)
     
-    # メインフレームをパックで配置
     main_frame = tk.Frame(root)
     main_frame.pack(expand=True, fill="both", padx=20, pady=20)
     
-    # 戻るボタンを右上に配置
     back_button = tk.Button(root, text="戻る", command=show_main_menu, width=8, height=1)
     back_button.place(x=800, y=20)
-    back_button.lift()  # ボタンを最前面に配置
+    back_button.lift()
 
-    # 上部の余白用フレーム
     spacer_frame = tk.Frame(main_frame, height=40)
     spacer_frame.pack(side="top", fill="x")
     
@@ -711,24 +708,20 @@ def show_settings():
     left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"))
     left_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
     
-    # テキストボックスとスクロールバーを含むフレーム
     text_frame = tk.Frame(left_frame)
     text_frame.pack(fill="both", expand=True, padx=5, pady=5)
     
     prompt_textbox = tk.Text(text_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
     prompt_textbox.pack(side="left", fill="both", expand=True)
     
-    # settings.jsonからプロンプトを読み込んで表示
     prompt_text = load_prompt_from_settings()
     if prompt_text:
         prompt_textbox.insert('1.0', prompt_text)
     
-    # スクロールバーの追加
     scrollbar = tk.Scrollbar(text_frame, command=prompt_textbox.yview)
     scrollbar.pack(side="right", fill="y")
     prompt_textbox.config(yscrollcommand=scrollbar.set)
     
-    # プロンプトの保存ボタンをテキストボックスの下に配置
     save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
     save_prompt_button.pack(side="bottom", pady=10, padx=5, fill="x")
     
@@ -736,9 +729,9 @@ def show_settings():
     right_frame = tk.Frame(main_frame)
     right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
     
-    # 出力先ディレクトリを指定するフレーム
+    # 出力先ディレクトリフレーム
     directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"))
-    directory_frame.pack(fill="x", expand=False, padx=10, pady=(0,10))
+    directory_frame.pack(fill="x", padx=10, pady=(0,10))
     
     current_dir = load_output_directory()
     current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
@@ -753,31 +746,33 @@ def show_settings():
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
     directory_button.pack(fill="x", pady=10, padx=5)
     
-    # Gemini APIキーを設定するためのラベル付きフレーム
+    # Gemini APIキーフレーム - 文字起こしプロンプトと同じ構造に
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
     api_key_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-    # APIキーのテキストボックスとスクロールバーを含むフレーム
+    # APIキーのテキストボックスフレーム
     api_key_text_frame = tk.Frame(api_key_frame)
-    api_key_text_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
+    api_key_text_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=3, width=30, font=("Yu Gothic", 10))
-    api_key_textbox.pack(side="left", fill="both", expand=True, padx=(5,0), pady=5)
+    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=8, width=30, font=("Yu Gothic", 10))
+    api_key_textbox.pack(side="left", fill="both", expand=True)
 
-    # スクロールバー
     api_key_scrollbar = tk.Scrollbar(api_key_text_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.pack(side="right", fill="y", pady=5)
+    api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    # 既存のAPIキーを読み込む
+    # APIキーを読み込む
     api_keys_text = get_api_keys_text()
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
 
-    # APIキーの保存ボタン
-    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")
-    save_api_key_button.lift()  # 保存ボタンを最前面に持ってくる
+    # APIキーの保存ボタン - 文字起こしプロンプトと全く同じ構造で
+    save_api_key_button = tk.Button(
+        api_key_frame,  # 親を変更
+        text="保存", 
+        command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c'))
+    )
+    save_api_key_button.pack(side="bottom", pady=10, padx=5, fill="x")  # 文字起こしプロンプトと同じパラメータ
 
 def main():
     global root, transcription_prompt
