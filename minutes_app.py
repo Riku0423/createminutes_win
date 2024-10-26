@@ -718,19 +718,19 @@ def show_settings():
     
     # プロンプトの保存ボタンをテキストボックスの下に配置
     save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
-    save_prompt_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="e")
+    save_prompt_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="nsew")
     
     # 右半分のフレーム
-    right_frame = tk.Frame(main_frame)
+    right_frame = tk.Frame(main_frame, padx=10, pady=10)
     right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
     
     # 出力先ディレクトリを指定するフレーム
     directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
-    directory_frame.grid(row=0, column=0, sticky="ew", pady=10)
+    directory_frame.grid(row=0, column=0, sticky="nsew", pady=10)
     
     current_dir = load_output_directory()
     current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
-    current_dir_label.grid(row=0, column=0, pady=5, sticky="w")
+    current_dir_label.grid(row=0, column=0, pady=5, sticky="nsew")
     
     def select_directory():
         directory = filedialog.askdirectory()
@@ -739,7 +739,7 @@ def show_settings():
             save_output_directory_to_settings(directory.strip())
     
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
-    directory_button.grid(row=1, column=0, pady=5, sticky="e")
+    directory_button.grid(row=1, column=0, pady=5, sticky="nsew")
     
     # Gemini APIキーを設定するフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
@@ -756,12 +756,12 @@ def show_settings():
     
     # スクロールバー
     api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.grid(row=0, column=1, sticky="ns")
+    api_key_scrollbar.grid(row=0, column=1, sticky="nsew")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
     # APIキーの保存ボタンをフレームの下に配置
     save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="e")
+    save_api_key_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="nsew")
 
     # フレーム内のレイアウトを調整
     api_key_frame.grid_rowconfigure(0, weight=1)
