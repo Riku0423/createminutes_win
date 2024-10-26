@@ -694,25 +694,25 @@ def show_settings():
     root.title("設定")
     root.resizable(False, False)  # ウィンドウのサイズを固定
     
+    # メインフレームをパックで配置
+    main_frame = tk.Frame(root)
+    main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+    
     # 戻るボタンを右上に配置
     back_button = tk.Button(root, text="戻る", command=show_main_menu, width=8, height=1)
     back_button.place(x=800, y=20)
     back_button.lift()  # ボタンを最前面に配置
 
-    # メインフレームをグリッドで配置
-    main_frame = tk.Frame(root, padx=10, pady=10)
-    main_frame.grid(row=0, column=0, sticky="nsew")
-    
-    # グリッドの行と列を設定
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
+    # 上部の余白用フレーム
+    spacer_frame = tk.Frame(main_frame, height=40)
+    spacer_frame.pack(side="top", fill="x")
     
     # 左半分のフレーム
-    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
-    left_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"))
+    left_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
     
     prompt_textbox = tk.Text(left_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
-    prompt_textbox.grid(row=0, column=0, sticky="nsew")
+    prompt_textbox.pack(side="left", fill="both", expand=True, padx=(5,0), pady=5)
     
     # settings.jsonからプロンプトを読み込んで表示
     prompt_text = load_prompt_from_settings()
@@ -721,24 +721,24 @@ def show_settings():
     
     # スクロールバーの追加
     scrollbar = tk.Scrollbar(left_frame, command=prompt_textbox.yview)
-    scrollbar.grid(row=0, column=1, sticky="ns")
+    scrollbar.pack(side="right", fill="y", pady=5)
     prompt_textbox.config(yscrollcommand=scrollbar.set)
     
     # プロンプトの保存ボタンをテキストボックスの下に配置
     save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
-    save_prompt_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="nsew")
+    save_prompt_button.pack(side="bottom", pady=10, padx=5, fill="x")
     
     # 右半分のフレーム
-    right_frame = tk.Frame(main_frame, padx=10, pady=10)
-    right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+    right_frame = tk.Frame(main_frame)
+    right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
     
     # 出力先ディレクトリを指定するフレーム
-    directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
-    directory_frame.grid(row=0, column=0, sticky="nsew", pady=10)
+    directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"))
+    directory_frame.pack(fill="x", pady=(0,10))
     
     current_dir = load_output_directory()
     current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
-    current_dir_label.grid(row=0, column=0, pady=5, sticky="nsew")
+    current_dir_label.pack(pady=5)
     
     def select_directory():
         directory = filedialog.askdirectory()
@@ -747,15 +747,19 @@ def show_settings():
             save_output_directory_to_settings(directory.strip())
     
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
-    directory_button.grid(row=1, column=0, pady=5, sticky="nsew")
+    directory_button.pack(pady=5, padx=10, fill="x")
     
     # Gemini APIキーを設定するフレーム
-    api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
-    api_key_frame.grid(row=1, column=0, sticky="nsew", pady=10)
+    api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
+    api_key_frame.pack(fill="both", expand=True)
+
+    # テキストボックスとスクロールバーを含むフレーム
+    textbox_frame = tk.Frame(api_key_frame)
+    textbox_frame.pack(fill="both", expand=True)
 
     # テキストボックス
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=8, width=40, font=("Yu Gothic", 10))
-    api_key_textbox.grid(row=0, column=0, sticky="nsew")
+    api_key_textbox = tk.Text(textbox_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
+    api_key_textbox.pack(side="left", fill="both", expand=True)
     
     # 既存のAPIキーを読み込んで表示
     api_keys_text = get_api_keys_text()
@@ -763,23 +767,13 @@ def show_settings():
         api_key_textbox.insert('1.0', api_keys_text)
     
     # スクロールバー
-    api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.grid(row=0, column=1, sticky="nsew")
+    api_key_scrollbar = tk.Scrollbar(textbox_frame, command=api_key_textbox.yview)
+    api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    # APIキーの保存ボタンをフレームの下に配置
-    save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.grid(row=1, column=0, columnspan=2, pady=10, sticky="nsew")
-
-    # フレーム内のレイアウトを調整
-    api_key_frame.grid_rowconfigure(0, weight=1)
-    api_key_frame.grid_columnconfigure(0, weight=1)
-    
-    # グリッドの設定
-    main_frame.grid_columnconfigure(0, weight=1)
-    main_frame.grid_columnconfigure(1, weight=1)
-    main_frame.grid_rowconfigure(0, weight=1)
-
+    # APIキーの保存ボタンをテキストボックスの下に配置
+    save_api_key_button = tk.Button(textbox_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button.pack(pady=10, padx=5, fill="x")
 def main():
     global root, transcription_prompt
     try:
