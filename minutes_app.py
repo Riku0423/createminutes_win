@@ -496,7 +496,7 @@ def process_audio_file(audio_file_path, processed_files):
         combined_text = "\n".join(filter(None, transcribed_texts))
         # 余分な空白を取り除く
         cleaned_combined_text = " ".join(combined_text.split())
-        logging.info(f"{audio_file_name}の文字起こしが完了しました。情報を抽出します。")
+        logging.info(f"{audio_file_name}���文字起こしが完了しました。情報を抽出します。")
 
         # 文字起こし結果をWordファイルに保存
         try:
@@ -677,7 +677,7 @@ def show_main_menu():
     excel_file_label = tk.Label(excel_frame, text="選択したファイル: なし", wraplength=300, justify="center")
     excel_file_label.pack(pady=10)
 
-    process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload, width=25)
+    process_excel_button = tk.Button(excel_frame, text="Excel���ァイルを処理する", command=complete_xlsx_upload, width=25)
     process_excel_button.pack(pady=10)
 
     # グリッドの設定
@@ -749,38 +749,28 @@ def show_settings():
     directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
     directory_button.pack(pady=5, padx=10, fill="x")
     
-    # Gemini APIキーを設定するためのラベル付きフレームを作成
+    # Gemini APIキーを設定するためのラベル付きフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
-    # フレームを親ウィジェットに合わせて拡大表示
     api_key_frame.pack(fill="both", expand=True)
 
-    # テキストボックスとスクロールバーを配置するための内部フレームを作成
-    textbox_frame = tk.Frame(api_key_frame)
-    # 内部フレームを親フレームに合わせて拡大表示
-    textbox_frame.pack(fill="both", expand=True)
+    # APIキーを入力するためのテキストボックス
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
+    api_key_textbox.pack(fill="both", expand=True, padx=5, pady=(5,40))
 
-    # APIキーを入力するためのテキストボックスを作成(高さ5行、幅40文字、Yu Gothicフォント)
-    api_key_textbox = tk.Text(textbox_frame, wrap="word", height=5, width=40, font=("Yu Gothic", 10))
-    # テキストボックスを左側に配置し、親フレームに合わせて拡大
-    api_key_textbox.pack(side="left", fill="both", expand=True, pady=(5,40)) # 下部に余白を追加
-    
-    # 設定ファイルから既存のAPIキーを読み込む
+    # 既存のAPIキーを読み込む
     api_keys_text = get_api_keys_text()
-    # APIキーが存在する場合、テキストボックスに表示
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
-    
-    # テキストボックス用の垂直スクロールバーを作成
-    api_key_scrollbar = tk.Scrollbar(textbox_frame, command=api_key_textbox.yview)
-    # スクロールバーを右側に配置
-    api_key_scrollbar.pack(side="right", fill="y", pady=(5,40)) # 下部に余白を追加
-    # テキストボックスとスクロールバーを連動させる
+
+    # スクロールバー
+    api_key_scrollbar = tk.Scrollbar(api_key_frame, command=api_key_textbox.yview)
+    api_key_scrollbar.pack(side="right", fill="y", pady=(5,40))
     api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
 
-    # APIキーを保存するためのボタンを作成(クリック時にテキストボックスの内容を設定ファイルに保存)
+    # 保存ボタン（テキストボックスの下に配置）
     save_api_key_button = tk.Button(api_key_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    # 保存ボタンをテキストボックスの下に配置し、横幅いっぱいに表示
-    save_api_key_button.pack(pady=5, padx=10, fill="x")
+    save_api_key_button.pack(side="bottom", fill="x", padx=5, pady=(5,10))
+
 def main():
     global root, transcription_prompt
     try:
