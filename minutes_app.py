@@ -731,7 +731,8 @@ def show_settings():
     
     # 右側のフレーム - 幅を40%に設定
     right_frame = tk.Frame(content_frame)
-    right_frame.pack(side="right", fill="both", padx=10, pady=10, expand=False)
+    # ここを修正: expand=True に変更
+    right_frame.pack(side="right", fill="both", padx=10, pady=10, expand=True)
     
     # 出力先ディレクトリフレーム
     directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"))
@@ -748,10 +749,16 @@ def show_settings():
     
     # APIキーフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
+    # ここを修正: fill="both", expand=True に変更
     api_key_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
     
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", font=("Yu Gothic", 10), height=5)
-    api_key_scrollbar = tk.Scrollbar(api_key_frame, orient="vertical", command=api_key_textbox.yview)
+    # テキストボックスを含むフレーム
+    text_frame = tk.Frame(api_key_frame)
+    # ここを修正: expand=True に変更
+    text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    
+    api_key_textbox = tk.Text(text_frame, wrap="word", font=("Yu Gothic", 10), height=10)  
+    api_key_scrollbar = tk.Scrollbar(text_frame, orient="vertical", command=api_key_textbox.yview)
     api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
     
     api_key_scrollbar.pack(side="right", fill="y")
@@ -765,7 +772,8 @@ def show_settings():
     # APIキーの保存ボタン
     save_api_key_button = tk.Button(api_key_frame, text="保存", 
                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(side="bottom", pady=5, padx=5, fill="x")
+    # ここを修正: fill="x" を追加
+    save_api_key_button.pack(fill="x", pady=5, padx=5)
 
 def select_directory(label_widget):
     directory = filedialog.askdirectory()
