@@ -775,16 +775,15 @@ def select_directory(label_widget):
         save_output_directory_to_settings(directory.strip())
 
 def main():
-    global root, transcription_prompt
+    global root, transcription_prompt  # グローバル変数を宣言
     try:
-        logging.info("プロンプトをロード中...")
-        transcription_prompt = load_prompt_from_settings()
-        logging.info(f"`取得したプロンプト: {transcription_prompt}")
-        logging.info("プロンプトのロードが完了しました。")
+        logging.info("プロンプトをロード中...")  # 追加: ロード開始ログ
+        transcription_prompt = load_prompt_from_settings()  # プロンプトをロード
+        logging.info(f"取得したプロンプト: {transcription_prompt}")  # プロンプトの内容をログに出力
+        logging.info("プロンプトのロードが完了しました。")  # 追加: ロード完了ログ
         root = tk.Tk()
-        root.title("爆速議事録")
-        root.geometry("900x600")  # ウィンドウサイズを調整
-        root.resizable(False, False)  # ウィンドウサイズを固定
+        root.title("ファイル処理ツール")
+        root.geometry("500x300")
 
         show_main_menu()
 
@@ -792,7 +791,7 @@ def main():
     except Exception as e:
         logging.exception("アプリケーションの実行中にエラーが発生しました。")
         messagebox.showerror("エラー", f"アプリケーションの実行中にエラーが発生しました:\n{str(e)}")
-        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")
+        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")  # エラーログを追加
 
 def show_usage():
     for widget in root.winfo_children():
@@ -951,42 +950,100 @@ def ensure_settings_exist():
 # 確認と作成を実行
 ensure_settings_exist()
 
+
 def complete_audio_upload():
     if selected_file:
-        process_audio_file(selected_file, {})
+        start_time = time.time()  # 処理開始時刻を記録
+        root.update_idletasks()
+        processed_files = load_processed_files()
+        threading.Thread(target=process_audio_file_async, args=(selected_file, processed_files, start_time)).start()
     else:
-        messagebox.showwarning("警告", "音声ファイルが選択されていません。")
+        messagebox.showwarning("警告", "ファイルが選択されていません。")
 
 def upload_audio_file():
     global selected_file
-    file_path = filedialog.askopenfilename(
-        filetypes=[("音声ファイル", "*.mp3;*.m4a;*.wav")]
-    )
-    if file_path:
-        selected_file = file_path
-        file_label.config(text=f"選択したファイル:\n{os.path.basename(file_path)}")
+    selected_file = filedialog.askopenfilename(filetypes=[("Audio Files", "*.wav *.mp3 *.m4a")])
+    if selected_file:
+        file_label.config(text=f"選択したファイル\n{os.path.basename(selected_file)}")
+        
+        # ファイルサイズを取得
+        file_size_mb = os.path.getsize(selected_file) / (1024 * 1024)  # MBに変換
+        
+        # 想定処理時間を計算
+        if file_size_mb <= 10:
+            estimated_time = "1〜2分"
+        elif file_size_mb <= 20:
+            estimated_time = "2〜3分"
+        else:
+            estimated_time = "3〜5分"
+        
+        # 想定処理時間を表示
+        estimated_time_label.config(text=f"想定処理時間：約{estimated_time}")
 
 def upload_xlsx_file():
     global selected_file
-    file_path = filedialog.askopenfilename(
-        filetypes=[("Excelファイル", "*.xlsx")]
-    )
-    if file_path:
-        selected_file = file_path
-        excel_file_label.config(text=f"選択したファイル:\n{os.path.basename(file_path)}")
+    selected_file = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
+    if selected_file:
+        excel_file_label.config(text=f"選択したファイル\n{os.path.basename(selected_file)}")
 
 def complete_xlsx_upload():
     if selected_file:
-        output_directory = load_output_directory()
-        template_path = os.path.join(get_current_dir(), 'template.docx')  # ファイル名を英語に変更
-        output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(selected_file))[0]}_議事録.docx")
-        
-        if create_minutes(selected_file, template_path, output_path):
-            messagebox.showinfo("完了", "議事録の作成が完了しました。")
-        else:
-            messagebox.showerror("エラー", "議事録の作成中にエラーが発生しました。")
+        root.update_idletasks()
+        threading.Thread(target=process_xlsx_file_async, args=(selected_file,)).start()
     else:
-        messagebox.showwarning("警告", "Excelファイルが選択されていません。")
+        messagebox.showwarning("警告", "ファイルが選択されていません。")
+
+def complete_xlsx_upload():
+    if selected_file:
+        root.update_idletasks()
+        threading.Thread(target=process_xlsx_file_async, args=(selected_file,)).start()
+    else:
+        messagebox.showwarning("警告", "ファイルが選択されていません。")
+
+def process_xlsx_file_async(xlsx_file):
+    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')  # dist直下から取得
+    output_directory = load_output_directory()
+    output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(xlsx_file))[0]}_議事録.docx")
+    
+    success = create_minutes(xlsx_file, template_path, output_path)
+    if success:
+        root.after(0, lambda: (messagebox.showinfo("完了", "議事録の作成が完了しました。"), show_main_menu()))
+    else:
+        messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
+
+def process_audio_file_async(audio_file, processed_files, start_time):
+    def update_elapsed_time():
+        while not processing_done:
+            elapsed_time = int(time.time() - start_time)
+            minutes, seconds = divmod(elapsed_time, 60)
+            if minutes > 0:
+                uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
+            else:
+                uploading_label.config(text=f"経過時間: {seconds}秒")
+            time.sleep(1)
+
+    processing_done = False
+    threading.Thread(target=update_elapsed_time).start()
+
+    # プロンプトが空でないか確認
+    if not transcription_prompt:  # ここでグローバル変数を参照
+        logging.error("プロンプトが空です。音声ファイルの処理を中止します。")
+        messagebox.showerror("エラー", "プロンプトが空です。処理を中止します。")
+        return  # 処理を中止
+
+    success = process_audio_file(audio_file, processed_files)
+    processing_done = True
+    total_elapsed_time = int(time.time() - start_time)
+    minutes, seconds = divmod(total_elapsed_time, 60)
+    if minutes > 0:
+        uploading_label.config(text=f"処理にかかった時間: {minutes}分{seconds}秒で処理が完了しました")
+    else:
+        uploading_label.config(text=f"処理にかかった時間: {seconds}秒で処理が完了しました")
+
+    if success:
+        root.after(0, lambda: (messagebox.showinfo("完了", "ファイルのアップロードが完了しました。"), show_main_menu()))
+    else:
+        messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
 
 if __name__ == "__main__":
     main()
