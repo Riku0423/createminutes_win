@@ -618,9 +618,14 @@ uploading_label = None
 elapsed_time_label = None
 estimated_time_label = None  # 追加
 root = None
+processing_done = False  # 処理が完了したかどうかを示すフラグ
+start_time = None  # 処理開始時刻を保持
+selected_file_name = ""  # 選択したファイル名を保持
+estimated_time_text = ""  # 想定処理時間を保持
+
 
 def show_main_menu():
-    global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file
+    global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file, selected_file_name, estimated_time_text,transcription_prompt, processing_done, start_time
     selected_file = None
     for widget in root.winfo_children():
         widget.destroy()
@@ -666,17 +671,31 @@ def show_main_menu():
     file_label = tk.Label(audio_frame, text="選択したファイル: なし", wraplength=300, justify="center")
     file_label.pack(pady=10)
 
-    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload, width=25)
-    process_audio_button.pack(pady=10)
+    # 音声ファイルを処理するボタン
+    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload)
+    process_audio_button.pack(pady=(20, 0))  # 初期位置を下げて固定
+ 
+    # 想定処理時間を表示するラベル
+    estimated_time_label = tk.Label(audio_frame, text=estimated_time_text, font=("Arial", 12))
+    estimated_time_label.pack(pady=10)
 
-    estimated_time_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
-    estimated_time_label.pack(pady=5)
+    # 経過時間を表示するラベル
+    uploading_label = tk.Label(audio_frame, text="", font=("Arial", 12))
+    uploading_label.pack(pady=10)
 
-    uploading_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
-    uploading_label.pack(pady=5)
+    # 処理が進行中の場合、経過時間を更新
+    if start_time and not processing_done:
+        def update_elapsed_time():
+            if not processing_done:
+                elapsed_time = int(time.time() - start_time)
+                minutes, seconds = divmod(elapsed_time, 60)
+                if minutes > 0:
+                    uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
+                else:
+                    uploading_label.config(text=f"経過時間: {seconds}秒")
+                root.after(1000, update_elapsed_time)  # 1秒ごとに更新
 
-    elapsed_time_label = tk.Label(audio_frame, text="", font=("Yu Gothic", 10))
-    elapsed_time_label.pack(pady=5)
+        update_elapsed_time()
 
     # Excelファイル処理フレーム
     excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
@@ -793,7 +812,7 @@ def select_directory(label_widget):
         save_output_directory_to_settings(directory.strip())
 
 def main():
-    global root, transcription_prompt  # グローバル変数を宣言
+    global root, transcription_prompt, selected_file_name, estimated_time_text
     try:
         logging.info("プロンプトをロード中...")  # 追加: ロード開始ログ
         transcription_prompt = load_prompt_from_settings()  # プロンプトをロード
@@ -1030,38 +1049,54 @@ def process_xlsx_file_async(xlsx_file):
         messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
 
 def process_audio_file_async(audio_file, processed_files, start_time):
+    global processing_done, selected_file, selected_file_name, estimated_time_text
+
     def update_elapsed_time():
-        while not processing_done:
+        if not processing_done:
             elapsed_time = int(time.time() - start_time)
             minutes, seconds = divmod(elapsed_time, 60)
             if minutes > 0:
                 uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
             else:
                 uploading_label.config(text=f"経過時間: {seconds}秒")
-            time.sleep(1)
+            root.after(1000, update_elapsed_time)  # 1秒ごとに更新
 
-    processing_done = False
-    threading.Thread(target=update_elapsed_time).start()
+    threading.Thread(target=update_elapsed_time, daemon=True).start()
 
     # プロンプトが空でないか確認
     if not transcription_prompt:  # ここでグローバル変数を参照
         logging.error("プロンプトが空です。音声ファイルの処理を中止します。")
-        messagebox.showerror("エラー", "プロンプトが空です。処理を中止します。")
+        root.after(0, lambda: messagebox.showerror("エラー", "プロンプトが空です。処理を中止します。"))
         return  # 処理を中止
 
-    success = process_audio_file(audio_file, processed_files)
-    processing_done = True
-    total_elapsed_time = int(time.time() - start_time)
-    minutes, seconds = divmod(total_elapsed_time, 60)
-    if minutes > 0:
-        uploading_label.config(text=f"処理にかかった時間: {minutes}分{seconds}秒で処理が完了しました")
-    else:
-        uploading_label.config(text=f"処理にかかった時間: {seconds}秒で処理が完了しました")
+    try:
+        logging.info(f"{audio_file}の処理を開始します。")
+        success = process_audio_file(audio_file, processed_files)
+        processing_done = True
+        total_elapsed_time = int(time.time() - start_time)
+        minutes, seconds = divmod(total_elapsed_time, 60)
+        if minutes > 0:
+            root.after(0, lambda: uploading_label.config(text=f"処理にかかった時間: {minutes}分{seconds}秒で処理が完了しました"))
+        else:
+            root.after(0, lambda: uploading_label.config(text=f"処理にかかった時間: {seconds}秒で処理が完了しました"))
 
-    if success:
-        root.after(0, lambda: (messagebox.showinfo("完了", "ファイルのアップロードが完了しました。"), show_main_menu()))
-    else:
-        messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
+        if success:
+            # 処理が成功した場合、選択したファイル情報と想定処理時間をリセット
+            root.after(0, lambda: reset_file_info())
+            root.after(0, lambda: (messagebox.showinfo("完了", "ファイルのアップロードが完了しました。"), show_main_menu()))
+        else:
+            root.after(0, lambda: messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。"))
+    except Exception as e:
+        logging.exception(f"音声ファイルの処理中にエラーが発生しました: {str(e)}")
+        root.after(0, lambda: messagebox.showerror("エラー", "音声ファイルの処理中にエラーが発生しました。"))
+
+def reset_file_info():
+    global selected_file, selected_file_name, estimated_time_text
+    selected_file = None
+    selected_file_name = ""
+    estimated_time_text = ""
+    file_label.config(text="選択したファイル\n")
+    estimated_time_label.config(text="")
 
 if __name__ == "__main__":
     main()
