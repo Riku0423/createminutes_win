@@ -750,12 +750,12 @@ def show_settings():
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
     api_key_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
     
-    api_key_textbox = tk.Text(api_key_frame, wrap="word", font=("Yu Gothic", 10), height=10)
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", font=("Yu Gothic", 10), height=5)
     api_key_scrollbar = tk.Scrollbar(api_key_frame, orient="vertical", command=api_key_textbox.yview)
     api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
     
-    api_key_scrollbar.pack(side="right", fill="y", padx=(0, 5), pady=5)
-    api_key_textbox.pack(side="left", fill="both", expand=True, padx=(5, 0), pady=5)
+    api_key_scrollbar.pack(side="right", fill="y")
+    api_key_textbox.pack(side="left", fill="both", expand=True)
     
     # APIキーを読み込んで表示
     api_keys_text = get_api_keys_text()
