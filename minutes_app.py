@@ -629,6 +629,17 @@ def show_main_menu():
     root.geometry("900x600")  # ウィンドウサイズを大きくする
     root.resizable(False, False)  # ウィンドウのサイズを固定
 
+    settings = load_settings()
+    transcription_prompt = settings.get('transcription_prompt', '')
+    output_directory = settings.get('output_directory', '')
+    api_keys = [settings.get('gemini_api_keys', {}).get(f'GEMINI_API_KEY_{i}', '') for i in range(1, 11)]
+
+    # 設定の読み込み状態をログに記録
+    logging.info(f"設定を読み込みました:")
+    logging.info(f"- プロンプト: {'設定済み' if transcription_prompt else '未設定'}")
+    logging.info(f"- 出力先ディレクトリ: {output_directory if output_directory else '未設定'}")
+    logging.info(f"- APIキー: {sum(1 for key in api_keys if key) }個設定済み")
+
     # タイトルラベル
     title_label = tk.Label(root, text="⚡️爆速議事録", font=("Yu Gothic", 24, "bold"))
     title_label.pack(pady=20)
