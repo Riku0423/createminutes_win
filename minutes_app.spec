@@ -10,7 +10,7 @@ a = Analysis(
         ('ffprobe.exe', '.'),
     ],
     datas=[
-        ('テンプレート.docx', '.'), 
+        ('template.docx', '.'), 
         ('settings.json', '.'),  # JSONファイルを追加
         ('settings.json', '.'),  # settings.json を dist フォルダのルートにコピー
     ],
