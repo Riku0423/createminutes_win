@@ -749,31 +749,24 @@ def show_settings():
     
     # APIキーフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
-    # ここを修正: fill="both", expand=True に変更
     api_key_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
     
-    # テキストボックスを含むフレーム
-    text_frame = tk.Frame(api_key_frame)
-    # ここを修正: expand=True に変更
-    text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    # APIキー入力フレーム
+    api_key_input_frame = tk.Frame(api_key_frame)
+    api_key_input_frame.pack(fill="both", expand=True, padx=5, pady=5)
     
-    api_key_textbox = tk.Text(text_frame, wrap="word", font=("Yu Gothic", 10), height=10)  
-    api_key_scrollbar = tk.Scrollbar(text_frame, orient="vertical", command=api_key_textbox.yview)
+    # APIキー入力用テキストボックスとスクロールバー
+    api_key_textbox = tk.Text(api_key_input_frame, wrap="word", font=("Yu Gothic", 10), height=3)
+    api_key_scrollbar = tk.Scrollbar(api_key_input_frame, orient="vertical", command=api_key_textbox.yview)
     api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
     
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.pack(side="left", fill="both", expand=True)
     
-    # APIキーを読み込んで表示
-    api_keys_text = get_api_keys_text()
-    if api_keys_text:
-        api_key_textbox.insert('1.0', api_keys_text)
-    
     # APIキーの保存ボタン
     save_api_key_button = tk.Button(api_key_frame, text="保存", 
                                   command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    # ここを修正: fill="x" を追加
-    save_api_key_button.pack(fill="x", pady=5, padx=5)
+    save_api_key_button.pack(side="bottom", fill="x", pady=5, padx=5)
 
 def select_directory(label_widget):
     directory = filedialog.askdirectory()
