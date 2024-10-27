@@ -1055,7 +1055,7 @@ def complete_xlsx_upload():
         messagebox.showwarning("警告", "ファイルが選択されていません。")
 
 def process_xlsx_file_async(xlsx_file):
-    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')
+    template_path = os.path.join(get_current_dir(), 'template.docx')
     output_directory = load_output_directory()
     output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(xlsx_file))[0]}_議事録.docx")
     
