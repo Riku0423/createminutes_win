@@ -159,7 +159,7 @@ def split_audio_file(audio_file_path, num_parts):
     part_duration = duration / num_parts  # 各部分の長さを計算します
     overlap_duration = part_duration * 0.1  # 10%の重なりを持たせます
 
-    parts = []  # 分割した声ファイルのリストを作ります
+    parts = []  # 分割した声フイルのリストを作ります
     for i in range(num_parts):
         # 部分の開始時間を計算します
         start_time = max(0, i * part_duration - (overlap_duration if i > 0 else 0))
@@ -496,7 +496,7 @@ def process_audio_file(audio_file_path, processed_files):
         combined_text = "\n".join(filter(None, transcribed_texts))
         # 余分な空白を取り除く
         cleaned_combined_text = " ".join(combined_text.split())
-        logging.info(f"{audio_file_name}文字起こしが完了しました。情報を抽出します。")
+        logging.info(f"{audio_file_name}字起こしが完了しました。情報を抽出します。")
 
         # 文字起こし結果をWordファイルに保存
         try:
@@ -686,12 +686,16 @@ def show_main_menu():
         file_label.config(text=f"選択したファイル: {os.path.basename(selected_file)}")
         estimated_time_label.config(text=f"想定処理時間: {estimated_time_text}")
         
-        def update_elapsed_time(start_time=start_time):  # nonlocalの代わりにパラメータとして渡す
-            if not processing_done and start_time:
+        def update_elapsed_time(start_time=start_time):
+            if processing_done:
+                uploading_label.config(text="")  # 経過時間表示をクリア
+                return
+                
+            if start_time:
                 try:
                     elapsed_time = int(time.time() - start_time)
                     minutes, seconds = divmod(elapsed_time, 60)
-                    root.after(0, lambda: uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒"))
+                    uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
                     if not processing_done:
                         root.after(1000, lambda: update_elapsed_time(start_time))
                 except Exception as e:
@@ -1050,20 +1054,15 @@ def complete_xlsx_upload():
     else:
         messagebox.showwarning("警告", "ファイルが選択されていません。")
 
-def complete_xlsx_upload():
-    if selected_file:
-        root.update_idletasks()
-        threading.Thread(target=process_xlsx_file_async, args=(selected_file,)).start()
-    else:
-        messagebox.showwarning("警告", "ファイルが選択されていません。")
-
 def process_xlsx_file_async(xlsx_file):
-    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')  # dist直下から取得
+    template_path = os.path.join(get_current_dir(), 'テンプレート.docx')
     output_directory = load_output_directory()
     output_path = os.path.join(output_directory, f"{os.path.splitext(os.path.basename(xlsx_file))[0]}_議事録.docx")
     
     success = create_minutes(xlsx_file, template_path, output_path)
     if success:
+        # 処理成功時に経過時間とUIをリセット
+        root.after(0, lambda: reset_file_info())  # reset_file_info を呼び出し
         root.after(0, lambda: (messagebox.showinfo("完了", "議事録の作成が完了しました。"), show_main_menu()))
     else:
         messagebox.showerror("エラー", "ファイルの処理中にエラーが発生しました。")
@@ -1072,11 +1071,15 @@ def process_audio_file_async(audio_file, processed_files, start_time):
     global processing_done, selected_file, selected_file_name, estimated_time_text
 
     def update_elapsed_time(start_time=start_time):  # nonlocalの代わりにパラメータとして渡す
-        if not processing_done and start_time:
+        if processing_done:
+            uploading_label.config(text="")  # 経過時間表示をクリア
+            return
+
+        if start_time:
             try:
                 elapsed_time = int(time.time() - start_time)
                 minutes, seconds = divmod(elapsed_time, 60)
-                root.after(0, lambda: uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒"))
+                uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
                 if not processing_done:
                     root.after(1000, lambda: update_elapsed_time(start_time))
             except Exception as e:
@@ -1094,13 +1097,7 @@ def process_audio_file_async(audio_file, processed_files, start_time):
     try:
         logging.info(f"{audio_file}の処理を開始します。")
         success = process_audio_file(audio_file, processed_files)
-        processing_done = True
-        total_elapsed_time = int(time.time() - start_time)
-        minutes, seconds = divmod(total_elapsed_time, 60)
-        if minutes > 0:
-            root.after(0, lambda: uploading_label.config(text=f"処理にかかった時間: {minutes}分{seconds}秒で処理が完了しました"))
-        else:
-            root.after(0, lambda: uploading_label.config(text=f"処理にかかった時間: {seconds}秒で処理が完了しました"))
+        processing_done = True  # 処理完了を示すために True を設定
 
         if success:
             # 処理が成功した場合、選択したファイル情報と想定処理時間をリセット
@@ -1118,8 +1115,10 @@ def reset_file_info():
     selected_file_name = ""
     estimated_time_text = ""
     start_time = None
-    processing_done = False
+    processing_done = True  # ここを False から True に変更
+    # UIの表示をリセット
     file_label.config(text="選択したファイル: なし")
+    excel_file_label.config(text="選択したファイル: なし")  # Excel用のラベルもリセット
     estimated_time_label.config(text="")
     uploading_label.config(text="")
 
