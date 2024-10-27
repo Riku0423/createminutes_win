@@ -729,9 +729,7 @@ def show_settings():
                                  command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
     save_prompt_button.pack(side="bottom", pady=5, padx=5, fill="x")
     
-    # 右側のフレーム - 幅を40%に設定
     right_frame = tk.Frame(content_frame)
-    # ここを修正: expand=True に変更
     right_frame.pack(side="right", fill="both", padx=10, pady=10, expand=True)
     
     # 出力先ディレクトリフレーム
@@ -756,7 +754,7 @@ def show_settings():
     api_key_input_frame.pack(fill="both", expand=True, padx=5, pady=5)
     
     # APIキー入力用テキストボックスとスクロールバー
-    api_key_textbox = tk.Text(api_key_input_frame, wrap="word", font=("Yu Gothic", 10), height=3)
+    api_key_textbox = tk.Text(api_key_input_frame, wrap="word", font=("Yu Gothic", 8), height=3)
     api_key_scrollbar = tk.Scrollbar(api_key_input_frame, orient="vertical", command=api_key_textbox.yview)
     api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
     
