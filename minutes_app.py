@@ -721,12 +721,17 @@ def show_settings():
     prompt_scrollbar = tk.Scrollbar(prompt_frame, orient="vertical", command=prompt_textbox.yview)
     prompt_textbox.configure(yscrollcommand=prompt_scrollbar.set)
     
+    # 保存されているプロンプトを読み込んで表示
+    settings = load_settings()
+    saved_prompt = settings.get('transcription_prompt', '')
+    prompt_textbox.insert('1.0', saved_prompt)
+    
     prompt_scrollbar.pack(side="right", fill="y")
     prompt_textbox.pack(side="left", fill="both", expand=True)
     
     # プロンプトの保存ボタン
     save_prompt_button = tk.Button(left_frame, text="保存", 
-                                 command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
+                                command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
     save_prompt_button.pack(side="bottom", pady=5, padx=5, fill="x")
     
     right_frame = tk.Frame(content_frame)
@@ -757,6 +762,10 @@ def show_settings():
     api_key_textbox = tk.Text(api_key_input_frame, wrap="word", font=("Yu Gothic", 8), height=3)
     api_key_scrollbar = tk.Scrollbar(api_key_input_frame, orient="vertical", command=api_key_textbox.yview)
     api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
+    
+    # 保存されているAPIキーを読み込んで表示
+    api_keys_text = get_api_keys_text()
+    api_key_textbox.insert('1.0', api_keys_text)
     
     api_key_scrollbar.pack(side="right", fill="y")
     api_key_textbox.pack(side="left", fill="both", expand=True)
