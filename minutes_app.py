@@ -96,12 +96,12 @@ def create_extraction_prompt(text):
     5. 議題③
     6. 議題③の要約
     7. 議題④
-    8. 議題④の要約
+    8. 議④の要約
     9. 議題⑤
     10. 議題⑤の要約
     11. 議題⑥
     12. 議題⑥の要約
-    13. 議題⑦
+    13. 議題
     14. 議題⑦の要約
     15. 議題⑧
     16. 議題⑧の要約
@@ -166,7 +166,7 @@ def split_audio_file(audio_file_path, num_parts):
         # 新しい音声ファイルの名前を決めます
         part_file = f"{audio_file_path}_part{i+1}.mp3"  # 拡張子をmp3のままにします
 
-        # 音声ファイルの種類に応じて、分割の方法を変えます
+        # 音声ファイルの種類に応じて、分割の法を変えます
         if audio_file_path.endswith('.mp3'):
             # MP3ファイルの場合の分割方法
             command = [
@@ -241,7 +241,7 @@ def load_prompt_from_settings():
                 logging.info("settings.jsonを正常に読み込みました。")  # 追加: 読み込み成功
                 return settings.get('transcription_prompt', '')  # デフォルト値を空文字に変更
             except json.JSONDecodeError as e:
-                logging.error(f"JSONデコードエラー: {str(e)}")  # 追加: JSONデコードエラー
+                logging.error(f"JSONデコーエラー: {str(e)}")  # 追加: JSONデコードエラー
     else:
         logging.error("settings.jsonが見つかりません。")  # 追加: ファイルが見つからない場合
     return ''  # ファイルが存在しない場合も空文字を返す
@@ -290,7 +290,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
             # APIの利用制限に達した場合のエラーを記録します
             logging.error(f"文字起こし失敗: {audio_file} - 429 Resource has been exhausted (e.g. check quota).")
         except Exception as e:
-            # その他のエラーが発生した場合、エラー内容を記録します
+            # その他のエラーが発生し、エ内容を記録します
             logging.error(f"文字起こし失敗: {audio_file} - {str(e)}")
         
         # リトライが可能な場合は、次の試行を行います
@@ -610,7 +610,7 @@ def create_minutes(xlsx_path, template_path, output_path):
         print(f"エラーが発生しました: {str(e)}")
         return False
     
-# グローバル変数
+# グローバル変数の定義
 selected_file = None
 file_label = None
 excel_file_label = None
@@ -623,10 +623,8 @@ start_time = None  # 処理開始時刻を保持
 selected_file_name = ""  # 選択したファイル名を保持
 estimated_time_text = ""  # 想定処理時間を保持
 
-
 def show_main_menu():
     global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file, selected_file_name, estimated_time_text,transcription_prompt, processing_done, start_time
-    selected_file = None
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -668,34 +666,39 @@ def show_main_menu():
     audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file, width=25)
     audio_button.pack(pady=10)
 
-    file_label = tk.Label(audio_frame, text="選択したファイル: なし", wraplength=300, justify="center")
+    file_label = tk.Label(audio_frame, text=f"選択したファイル: {selected_file_name}", wraplength=300, justify="center")
     file_label.pack(pady=10)
 
     # 音声ファイルを処理するボタン
-    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload)
-    process_audio_button.pack(pady=(20, 0))  # 初期位置を下げて固定
- 
+    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload, width=25)
+    process_audio_button.pack(pady=10)  
+
     # 想定処理時間を表示するラベル
-    estimated_time_label = tk.Label(audio_frame, text=estimated_time_text, font=("Arial", 12))
+    estimated_time_label = tk.Label(audio_frame, text="", font=("Arial", 12))
     estimated_time_label.pack(pady=10)
 
     # 経過時間を表示するラベル
     uploading_label = tk.Label(audio_frame, text="", font=("Arial", 12))
     uploading_label.pack(pady=10)
 
-    # 処理が進行中の場合、経過時間を更新
-    if start_time and not processing_done:
-        def update_elapsed_time():
-            if not processing_done:
-                elapsed_time = int(time.time() - start_time)
-                minutes, seconds = divmod(elapsed_time, 60)
-                if minutes > 0:
-                    uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
-                else:
-                    uploading_label.config(text=f"経過時間: {seconds}秒")
-                root.after(1000, update_elapsed_time)  # 1秒ごとに更新
+    # 処理が進行中の場合、選択ファイルと想定時間を表示
+    if not processing_done and selected_file and start_time:
+        file_label.config(text=f"選択したファイル: {os.path.basename(selected_file)}")
+        estimated_time_label.config(text=f"想定処理時間: {estimated_time_text}")
+        
+        def update_elapsed_time(start_time=start_time):  # nonlocalの代わりにパラメータとして渡す
+            if not processing_done and start_time:
+                try:
+                    elapsed_time = int(time.time() - start_time)
+                    minutes, seconds = divmod(elapsed_time, 60)
+                    root.after(0, lambda: uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒"))
+                    if not processing_done:
+                        root.after(1000, lambda: update_elapsed_time(start_time))
+                except Exception as e:
+                    logging.error(f"経過時間の更新中にエラーが発生: {str(e)}")
 
-        update_elapsed_time()
+        # メインスレッドで更新を開始
+        root.after(0, update_elapsed_time)
 
     # Excelファイル処理フレーム
     excel_frame = tk.LabelFrame(main_frame, text="Excelファイル処理", font=("Yu Gothic", 12, "bold"), padx=10, pady=10)
@@ -716,8 +719,7 @@ def show_main_menu():
     main_frame.grid_rowconfigure(0, weight=1)
 
 def show_settings():
-    global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file
-    selected_file = None
+    global root, file_label, excel_file_label, uploading_label, elapsed_time_label, estimated_time_label, selected_file, selected_file_name, estimated_time_text,transcription_prompt, processing_done, start_time
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -989,8 +991,24 @@ ensure_settings_exist()
 
 
 def complete_audio_upload():
+    global processing_done, start_time, selected_file_name, estimated_time_text
     if selected_file:
+        processing_done = False  # この行を追加
         start_time = time.time()  # 処理開始時刻を記録
+        selected_file_name = os.path.basename(selected_file)
+        file_size_mb = os.path.getsize(selected_file) / (1024 * 1024)  # MBに変換
+
+        # 想定処理時間を計算
+        if file_size_mb <= 10:
+            estimated_time = "1〜2分"
+        elif file_size_mb <= 20:
+            estimated_time = "2〜3分"
+        else:
+            estimated_time = "3〜5分"
+
+        estimated_time_text = estimated_time  # 時間だけを保存
+        estimated_time_label.config(text=f"想定処理時間：{estimated_time}")  # 表示時にテキストを追加
+
         root.update_idletasks()
         processed_files = load_processed_files()
         threading.Thread(target=process_audio_file_async, args=(selected_file, processed_files, start_time)).start()
@@ -998,10 +1016,11 @@ def complete_audio_upload():
         messagebox.showwarning("警告", "ファイルが選択されていません。")
 
 def upload_audio_file():
-    global selected_file
+    global selected_file, selected_file_name, estimated_time_text
     selected_file = filedialog.askopenfilename(filetypes=[("Audio Files", "*.wav *.mp3 *.m4a")])
     if selected_file:
-        file_label.config(text=f"選択したファイル\n{os.path.basename(selected_file)}")
+        selected_file_name = os.path.basename(selected_file)
+        file_label.config(text=f"選択したファイル\n{selected_file_name}")
         
         # ファイルサイズを取得
         file_size_mb = os.path.getsize(selected_file) / (1024 * 1024)  # MBに変換
@@ -1014,8 +1033,9 @@ def upload_audio_file():
         else:
             estimated_time = "3〜5分"
         
-        # 想定処理時間を表示
-        estimated_time_label.config(text=f"想定処理時間：約{estimated_time}")
+        # 想定処理時間を表示（「想定処理時間：」を含める）
+        estimated_time_text = estimated_time  # 時間だけを保存
+        estimated_time_label.config(text=f"想定処理時間：{estimated_time}")  # 表示時にテキストを追加
 
 def upload_xlsx_file():
     global selected_file
@@ -1051,23 +1071,25 @@ def process_xlsx_file_async(xlsx_file):
 def process_audio_file_async(audio_file, processed_files, start_time):
     global processing_done, selected_file, selected_file_name, estimated_time_text
 
-    def update_elapsed_time():
-        if not processing_done:
-            elapsed_time = int(time.time() - start_time)
-            minutes, seconds = divmod(elapsed_time, 60)
-            if minutes > 0:
-                uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒")
-            else:
-                uploading_label.config(text=f"経過時間: {seconds}秒")
-            root.after(1000, update_elapsed_time)  # 1秒ごとに更新
+    def update_elapsed_time(start_time=start_time):  # nonlocalの代わりにパラメータとして渡す
+        if not processing_done and start_time:
+            try:
+                elapsed_time = int(time.time() - start_time)
+                minutes, seconds = divmod(elapsed_time, 60)
+                root.after(0, lambda: uploading_label.config(text=f"経過時間: {minutes}分{seconds}秒"))
+                if not processing_done:
+                    root.after(1000, lambda: update_elapsed_time(start_time))
+            except Exception as e:
+                logging.error(f"経過時間の更新中にエラーが発生: {str(e)}")
 
-    threading.Thread(target=update_elapsed_time, daemon=True).start()
+    # メインスレッドで最初の更新を開始
+    root.after(0, update_elapsed_time)
 
     # プロンプトが空でないか確認
-    if not transcription_prompt:  # ここでグローバル変数を参照
+    if not transcription_prompt:
         logging.error("プロンプトが空です。音声ファイルの処理を中止します。")
         root.after(0, lambda: messagebox.showerror("エラー", "プロンプトが空です。処理を中止します。"))
-        return  # 処理を中止
+        return
 
     try:
         logging.info(f"{audio_file}の処理を開始します。")
@@ -1091,12 +1113,15 @@ def process_audio_file_async(audio_file, processed_files, start_time):
         root.after(0, lambda: messagebox.showerror("エラー", "音声ファイルの処理中にエラーが発生しました。"))
 
 def reset_file_info():
-    global selected_file, selected_file_name, estimated_time_text
+    global selected_file, selected_file_name, estimated_time_text, processing_done, start_time
     selected_file = None
     selected_file_name = ""
     estimated_time_text = ""
-    file_label.config(text="選択したファイル\n")
+    start_time = None
+    processing_done = False
+    file_label.config(text="選択したファイル: なし")
     estimated_time_label.config(text="")
+    uploading_label.config(text="")
 
 if __name__ == "__main__":
     main()
