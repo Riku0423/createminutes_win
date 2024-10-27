@@ -692,91 +692,86 @@ def show_settings():
         widget.destroy()
 
     root.title("設定")
-    root.resizable(False, False)
     
+    # メインフレーム
     main_frame = tk.Frame(root)
     main_frame.pack(expand=True, fill="both", padx=20, pady=20)
     
+    # 戻るボタン
     back_button = tk.Button(root, text="戻る", command=show_main_menu, width=8, height=1)
     back_button.place(x=800, y=20)
     back_button.lift()
 
-    spacer_frame = tk.Frame(main_frame, height=40)
-    spacer_frame.pack(side="top", fill="x")
+    # 上部のスペース
+    tk.Label(main_frame, height=1).pack()
     
-    # 左半分のフレーム
-    left_frame = tk.LabelFrame(main_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"))
+    # コンテンツフレームのレイアウトを変更
+    content_frame = tk.Frame(main_frame)
+    content_frame.pack(expand=True, fill="both")
+    
+    # 左側（プロンプト）のフレーム - 幅を60%に設定
+    left_frame = tk.LabelFrame(content_frame, text="文字起こしプロンプト", font=("Yu Gothic", 12, "bold"))
     left_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
     
-    text_frame = tk.Frame(left_frame)
-    text_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    # プロンプトテキストボックスとスクロールバー
+    prompt_frame = tk.Frame(left_frame)
+    prompt_frame.pack(fill="both", expand=True, padx=5, pady=5)
     
-    prompt_textbox = tk.Text(text_frame, wrap="word", height=20, width=50, font=("Yu Gothic", 10))
+    prompt_textbox = tk.Text(prompt_frame, wrap="word", font=("Yu Gothic", 10), height=20)
+    prompt_scrollbar = tk.Scrollbar(prompt_frame, orient="vertical", command=prompt_textbox.yview)
+    prompt_textbox.configure(yscrollcommand=prompt_scrollbar.set)
+    
+    prompt_scrollbar.pack(side="right", fill="y")
     prompt_textbox.pack(side="left", fill="both", expand=True)
     
-    prompt_text = load_prompt_from_settings()
-    if prompt_text:
-        prompt_textbox.insert('1.0', prompt_text)
+    # プロンプトの保存ボタン
+    save_prompt_button = tk.Button(left_frame, text="保存", 
+                                 command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
+    save_prompt_button.pack(side="bottom", pady=5, padx=5, fill="x")
     
-    scrollbar = tk.Scrollbar(text_frame, command=prompt_textbox.yview)
-    scrollbar.pack(side="right", fill="y")
-    prompt_textbox.config(yscrollcommand=scrollbar.set)
-    
-    save_prompt_button = tk.Button(left_frame, text="保存", command=lambda: save_prompt_to_settings(prompt_textbox.get('1.0', 'end-1c')))
-    save_prompt_button.pack(side="bottom", pady=10, padx=5, fill="x")
-    
-    # 右半分のフレーム
-    right_frame = tk.Frame(main_frame)
-    right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    # 右側のフレーム - 幅を40%に設定
+    right_frame = tk.Frame(content_frame)
+    right_frame.pack(side="right", fill="both", padx=10, pady=10, expand=False)
     
     # 出力先ディレクトリフレーム
     directory_frame = tk.LabelFrame(right_frame, text="出力先ディレクトリ", font=("Yu Gothic", 12, "bold"))
-    directory_frame.pack(fill="x", padx=10, pady=(0,10))
+    directory_frame.pack(fill="x", padx=5, pady=(0, 10))
     
     current_dir = load_output_directory()
-    current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", wraplength=300, font=("Yu Gothic", 10))
+    current_dir_label = tk.Label(directory_frame, text=f"現在の出力先:\n{current_dir}", 
+                                wraplength=300, font=("Yu Gothic", 10))
     current_dir_label.pack(pady=5)
     
-    def select_directory():
-        directory = filedialog.askdirectory()
-        if directory:
-            current_dir_label.config(text=f"選択されたディレクトリ:\n{directory}")
-            save_output_directory_to_settings(directory.strip())
+    directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", 
+                               command=lambda: select_directory(current_dir_label))
+    directory_button.pack(fill="x", pady=5, padx=5)
     
-    directory_button = tk.Button(directory_frame, text="ディレクトリを指定する", command=select_directory)
-    directory_button.pack(fill="x", pady=10, padx=5)
-    
-    # Gemini APIキーフレーム
+    # APIキーフレーム
     api_key_frame = tk.LabelFrame(right_frame, text="Gemini APIキー", font=("Yu Gothic", 12, "bold"))
-    api_key_frame.pack(fill="both", expand=True, padx=10, pady=5)
-
-    # コンテンツを含む内部フレーム
-    content_frame = tk.Frame(api_key_frame)
-    content_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
-    # APIキーのテキストボックスフレーム
-    api_key_text_frame = tk.Frame(content_frame)
-    api_key_text_frame.pack(fill="both", expand=True, padx=0, pady=0)
-
-    api_key_textbox = tk.Text(api_key_text_frame, wrap="word", height=6, width=30, font=("Yu Gothic", 10))
-    api_key_textbox.pack(side="left", fill="both", expand=True)
- 
-    api_key_scrollbar = tk.Scrollbar(api_key_text_frame, command=api_key_textbox.yview)
-    api_key_scrollbar.pack(side="right", fill="y")
-    api_key_textbox.config(yscrollcommand=api_key_scrollbar.set)
-
-    # APIキーを読み込む
+    api_key_frame.pack(fill="both", expand=True, padx=5, pady=(0, 5))
+    
+    api_key_textbox = tk.Text(api_key_frame, wrap="word", font=("Yu Gothic", 10), height=10)
+    api_key_scrollbar = tk.Scrollbar(api_key_frame, orient="vertical", command=api_key_textbox.yview)
+    api_key_textbox.configure(yscrollcommand=api_key_scrollbar.set)
+    
+    api_key_scrollbar.pack(side="right", fill="y", padx=(0, 5), pady=5)
+    api_key_textbox.pack(side="left", fill="both", expand=True, padx=(5, 0), pady=5)
+    
+    # APIキーを読み込んで表示
     api_keys_text = get_api_keys_text()
     if api_keys_text:
         api_key_textbox.insert('1.0', api_keys_text)
-
-    # ボタンフレーム
-    button_frame = tk.Frame(content_frame)
-    button_frame.pack(fill="x", pady=(5,0), expand=True)  # expandを追加
-
+    
     # APIキーの保存ボタン
-    save_api_key_button = tk.Button(button_frame, text="保存", command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
-    save_api_key_button.pack(pady=5, padx=5, fill="x", side="bottom")  # sideを追加
+    save_api_key_button = tk.Button(api_key_frame, text="保存", 
+                                  command=lambda: save_api_keys_to_settings(api_key_textbox.get('1.0', 'end-1c')))
+    save_api_key_button.pack(side="bottom", pady=5, padx=5, fill="x")
+
+def select_directory(label_widget):
+    directory = filedialog.askdirectory()
+    if directory:
+        label_widget.config(text=f"選択されたディレクトリ:\n{directory}")
+        save_output_directory_to_settings(directory.strip())
 
 def main():
     global root, transcription_prompt
