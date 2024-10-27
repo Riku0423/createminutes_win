@@ -778,7 +778,7 @@ def main():
     try:
         logging.info("プロンプトをロード中...")
         transcription_prompt = load_prompt_from_settings()
-        logging.info(f"得したプロンプト: {transcription_prompt}")
+        logging.info(f"`取得したプロンプト: {transcription_prompt}")
         logging.info("プロンプトのロードが完了しました。")
         root = tk.Tk()
         root.title("爆速議事録")
