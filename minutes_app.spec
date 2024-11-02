@@ -55,8 +55,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='app.ico',  # アイコンファイルがある場合
-    version='file_version_info.txt',  # バージョン情報ファイルがある場合
 )
 
 coll = COLLECT(
