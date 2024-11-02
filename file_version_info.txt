@@ -13,11 +13,14 @@ VSVersionInfo(
     StringFileInfo([
       StringTable(
         u'040904B0',
-        [StringStruct(u'CompanyName', u'Your Company'),
-         StringStruct(u'FileDescription', u'Minutes App'),
+        [StringStruct(u'CompanyName', u'Your Company Name'),
+         StringStruct(u'FileDescription', u'Minutes App - Meeting Minutes Management Tool'),
          StringStruct(u'FileVersion', u'1.0.0'),
          StringStruct(u'ProductName', u'Minutes App'),
-         StringStruct(u'ProductVersion', u'1.0.0')])
+         StringStruct(u'ProductVersion', u'1.0.0'),
+         StringStruct(u'LegalCopyright', u'© 2024 Your Company Name'),
+         StringStruct(u'OriginalFilename', u'MinutesApp.exe'),
+         StringStruct(u'Comments', u'Official release of Minutes App')])
     ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]
