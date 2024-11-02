@@ -57,6 +57,7 @@ exe = EXE(
     entitlements_file=None,
     uac_admin=True,
     version='file_version_info.txt',
+    manifest='app.manifest',
 )
 
 coll = COLLECT(
