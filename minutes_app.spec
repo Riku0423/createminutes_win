@@ -11,8 +11,8 @@ a = Analysis(
     ],
     datas=[
         ('template.docx', '.'), 
-        ('settings.json', '.'),  # JSONファイルを追加
-        ('settings.json', '.'),  # settings.json を dist フォルダのルートにコピー
+        ('settings.json', '.'),
+        ('settings.json', '.'),
     ],
     hiddenimports=[
         'tkinter', 
@@ -27,7 +27,7 @@ a = Analysis(
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
-    cipher=None,
+    cipher=block_cipher,
     noarchive=False,
 )
 
@@ -46,16 +46,13 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,  # デバッグ用に一時的にTrue
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None
-)
-
-app = BUNDLE(
-    exe,
-    name='minutes_app.app',
+    entitlements_file=None,
+    collect_all=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],  # 追加
+    collect_submodules=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],  # 追加
     bundle_identifier=None,
 )
