@@ -10,15 +10,22 @@ a = Analysis(
         ('ffprobe.exe', '.'),
     ],
     datas=[
-        ('template.docx', '.'), 
+        ('template.docx', '.'),
         ('settings.json', '.'),
+        # フォントやリソースファイルがある場合はここに追加
     ],
     hiddenimports=[
-        'tkinter', 
-        'google.generativeai', 
-        'openpyxl', 
-        'dotenv', 
-        'docx'
+        'tkinter',
+        'google.generativeai',
+        'openpyxl',
+        'dotenv',
+        'docx',
+        'PIL',
+        'PIL._tkinter_finder',
+        'win32gui',
+        'win32con',
+        'win32api',
+        'numpy',
     ],
     hookspath=[],
     hooksconfig={},
@@ -35,22 +42,30 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='minutes_app',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=True,  # デバッグ用に一時的にTrue
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    collect_submodules=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],
-    bundle_identifier=None,
+    icon='app.ico',  # アイコンファイルがある場合
+    version='file_version_info.txt',  # バージョン情報ファイルがある場合
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='minutes_app',
 )
