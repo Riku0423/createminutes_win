@@ -1122,5 +1122,14 @@ def reset_file_info():
     estimated_time_label.config(text="")
     uploading_label.config(text="")
 
+def add_dll_directory():
+    if getattr(sys, 'frozen', False):
+        dll_path = os.path.join(sys._MEIPASS, 'DLLs')
+        if os.path.exists(dll_path):
+            os.add_dll_directory(dll_path)
+
+# アプリケーション起動時に呼び出し
+add_dll_directory()
+
 if __name__ == "__main__":
     main()
