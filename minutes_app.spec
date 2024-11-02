@@ -12,7 +12,6 @@ a = Analysis(
     datas=[
         ('template.docx', '.'), 
         ('settings.json', '.'),
-        ('settings.json', '.'),
     ],
     hiddenimports=[
         'tkinter', 
@@ -52,7 +51,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    collect_all=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],  # 追加
-    collect_submodules=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],  # 追加
+    collect_submodules=['tkinter', 'google.generativeai', 'openpyxl', 'python-dotenv', 'python-docx'],
     bundle_identifier=None,
 )
